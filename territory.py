@@ -1,10 +1,11 @@
 class Territory:
     name = ''
     neighbors = []
+    ruler = None
+    troops = 0
 
-    def __init__(self, name, neighbors):
+    def __init__(self, name):
         self.name = name
-        self.neighbors = neighbors
 
     def add_neighbor(self, neighbor):
         self.neighbors.append(neighbor)

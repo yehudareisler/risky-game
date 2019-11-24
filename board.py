@@ -3,16 +3,16 @@ from territory import Territory
 from path import Path
 
 
-class GameMap:
+class Board:
     territories = {}
     paths = []
     continents = {}
 
-    def __init__(self, territories, paths):
-        self.territories = territories
-        self.paths = paths
+    def __init__(self):
+        self.territories = {}
+        self.paths = []
 
-    def initialize_from_config_file(self, path_to_file):
+    def initialize_game_board_from_config_file(self, path_to_file):
         with open(path_to_file) as f:
             continent_count, territory_count = map(int, f.readline().split())
 
@@ -25,7 +25,7 @@ class GameMap:
 
                 for _ in range(continent_territory_count):
                     new_territory_name = f.readline().strip()
-                    new_territory = Territory(new_territory_name, [])
+                    new_territory = Territory(new_territory_name)
                     new_continent.add_territory(new_territory)
                     self.territories[new_territory_name] = new_territory
 
