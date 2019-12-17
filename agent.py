@@ -1,22 +1,31 @@
-class Agent:
-    # decide:
-    # which is the best territory to claim next in the setup phase
-    def claim_territory(self, game_state):
+from abc import ABC, abstractmethod
+
+
+class Agent(ABC):
+    # return: name of the territory to be reinforced
+    # abstract method
+    def reinforce_territory(self, state):
         pass
 
-    # decide:
-    # where to add the next available troop
-    def reinforce_territory(self, game_state):
+    # return: <to>, <from>, <troop_count>
+    # <to> which territory to fortify
+    # <from> which neighboring territory
+    # <troop_count> with how many troops
+    # abstract method
+    def fortify_territory(self, state):
         pass
 
-    # decide:
-    # which territory to fortify
-    # from which neighboring territory
-    # with how many troops
-    def fortify_territory(self, game_state):
+    # return: 1 or 2 (number of troops committed to defend attacked_territory)
+    # abstract method
+    def defend_territory(self, state, attacked_territory):
         pass
 
-    # decide:
-    # the number of troops (1 or 2) committed to defend against an attack on a particular territory
-    def defend_territory(self, game_state, attacked_territory):
+    # return: boolean, whether the agent wants to attack or not
+    # abstract method
+    def wants_to_attack(self, state):
+        pass
+
+    # return: boolean, whether the agent wants to fortify or not
+    # abstract method
+    def wants_to_fortify(self, state):
         pass

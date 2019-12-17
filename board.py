@@ -12,6 +12,23 @@ class Board:
         self.territories = {}
         self.paths = []
 
+    def __repr__(self):
+        representation = ''
+        representation += f'Game map with {len(self.continents.keys())} continents ' \
+                          f'and {len(self.territories.keys())} territories:\n'
+        representation += '\nContinents:\n'
+        for continent_name in self.continents:
+            representation += '* ' + str(self.continents[continent_name]) + '\n'
+        representation += '\nTerritories:\n'
+        for territory_name in self.territories:
+            representation += str(self.territories[territory_name]) + '\n'
+
+        # representation += '\nPaths:\n'
+        # for path in self.paths:
+        #     representation += str(path) + '\n'
+
+        return representation
+
     def initialize_game_board_from_config_file(self, path_to_file):
         with open(path_to_file) as f:
             continent_count, territory_count = map(int, f.readline().split())
@@ -46,19 +63,19 @@ class Board:
 
                 f.readline()
 
-    def __repr__(self):
-        representation = ''
-        representation += f'Game map with {len(self.continents.keys())} continents ' \
-                          f'and {len(self.territories.keys())} territories:\n'
-        representation += '\nContinents:\n'
-        for continent_name in self.continents:
-            representation += '* ' + str(self.continents[continent_name]) + '\n'
-        representation += '\nTerritories:\n'
-        for territory_name in self.territories:
-            representation += str(self.territories[territory_name]) + '\n'
+    def get_all_neighbors_of_territory(self, target_territory):
+        neighbors = []
+        for path in self.paths:
+            if path.from_territory == target_territory:
+                neighbors.append(path.to_territory)
 
-        # representation += '\nPaths:\n'
-        # for path in self.paths:
-        #     representation += str(path) + '\n'
+        return neighbors
 
-        return representation
+    def get_friendly_neighbors_of_territory(self, target_territory):
+        neighbors = []
+        for path in self.paths:
+            if path.from_territory == target_territory:
+                if path.to_territory.ruler == path.from_territory.ruler:
+                    neighbors.append(path.to_territory)
+
+        return neighbors

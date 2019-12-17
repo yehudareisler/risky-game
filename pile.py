@@ -20,3 +20,9 @@ class Pile:
 
     def shuffle(self):
         random.shuffle(self.cards)
+
+    def remove_card(self, card):
+        self.cards.remove(card)
+
+    def add_card(self, card):
+        self.cards.append(card)

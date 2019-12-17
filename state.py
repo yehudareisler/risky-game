@@ -1,12 +1,14 @@
 class State:
     phase = 0
-    game_board = None
+    board = None
     card_set_count = 0
+    player_to_move = None
 
-    def __init__(self, phase, game_board):
+    def __init__(self, phase, board, player_to_move):
         self.phase = phase
-        self.game_board = game_board
+        self.board = board
         self.card_set_count = 0
+        self.player_to_move = player_to_move
 
     def get_card_bonus(self):
         if self.card_set_count < 6:
