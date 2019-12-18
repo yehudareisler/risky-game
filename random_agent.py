@@ -6,11 +6,16 @@ from agent import Agent
 
 class RandomAgent(Agent):
     # overriding abstract method
-    def reinforce_territory(self, state):
-        current_player = state.player_to_move
-        territories = current_player.get_occupied_territories(state)
-        territory_name = random.choice(territories)
-        return territory_name
+    def reinforce_owned_territory(self, state):
+        territories = state.board.occupied_territories(state.player_to_move)
+        territory = random.choice(territories)
+        return territory
+
+    # overriding abstract method
+    def reinforce_neutral_territory(self, state):
+        territories = state.board.occupied_territories()
+        territory = random.choice(territories)
+        return territory
 
     # overriding abstract method
     def defend_territory(self, state, attacked_territory):
@@ -27,8 +32,7 @@ class RandomAgent(Agent):
 
     # overriding abstract method
     def fortify_territory(self, state):
-        current_player = state.player_to_move
-        territories = current_player.get_occupied_territories(state)
+        territories = state.board.occupied_territories(state.player_to_move)
         to_territory_name = ''
         from_territory_name = ''
         troop_count = 0
@@ -37,7 +41,7 @@ class RandomAgent(Agent):
         end_time = now + 2
         while time.time() < end_time:
             to_territory_name = random.choice(territories)
-            neighbors = state.board.get_friendly_neighbors_of_territory(to_territory_name)
+            neighbors = state.board.friendly_neighbors_of_territory(to_territory_name)
             if neighbors:
                 from_territory_name = random.choice(neighbors)
                 if from_territory_name.troops > 1:

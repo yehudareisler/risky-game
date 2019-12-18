@@ -6,23 +6,43 @@ from card import Card, CardType
 class Pile:
     cards = []
 
-    def __init__(self):
-        self.cards = []
+    def __init__(self, cards):
+        self.cards = cards
 
-    def initialize_game_card_pile_from_config_file(self, path_to_file):
-        self.cards.append(Card(CardType.WILDCARD, None))
-        self.cards.append(Card(CardType.WILDCARD, None))
+    def __getitem__(self, key):
+        return self.cards[key]
+
+    def __repr__(self):
+        representation = f'Pile with {len(self.cards)} cards:\n'
+        for card in self.cards:
+            representation += f'{repr(card)}\n'
+
+        return representation
+
+    @staticmethod
+    def from_config_file(path_to_file):
+        new_cards = [
+            Card(None, CardType.WILDCARD),
+            Card(None, CardType.WILDCARD)
+        ]
 
         with open(path_to_file) as f:
-            territory = f.readline()
-            card_type = f.readline()
-            self.cards.append(Card(territory, CardType[card_type]))
+            card_count = int(f.readline().strip())
+            print(card_count)
+            for _ in range(card_count):
+                territory = f.readline().strip()
+                card_type = f.readline().strip()
+                new_cards.append(Card(territory, CardType[card_type]))
+        return Pile(new_cards)
 
     def shuffle(self):
         random.shuffle(self.cards)
 
     def remove_card(self, card):
         self.cards.remove(card)
+
+    def remove_card_with_index(self, index):
+        self.cards.remove(self.cards[index])
 
     def add_card(self, card):
         self.cards.append(card)

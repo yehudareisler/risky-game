@@ -9,7 +9,9 @@ class Player:
     agent = None
     name = ''
 
-    def __init__(self):
+    def __init__(self, name, agent):
+        self.name = name
+        self.agent = agent
         self.available_troops = 0
         self.cards = []
 
@@ -79,8 +81,7 @@ class Player:
             return False
 
     def reinforce_owned_territory(self, state):
-        name_of_territory_to_reinforce = self.agent.reinforce_owned_territory(state)
-        territory = state.game_board.territories[name_of_territory_to_reinforce]
+        territory = self.agent.reinforce_owned_territory(state)
         if territory.ruler != self.name:
             raise TerritoryNotOwnedByPlayerException()
         else:
@@ -88,15 +89,18 @@ class Player:
 
     def reinforce_neutral_territory(self, state):
         name_of_territory_to_reinforce = self.agent.reinforce_neutral_territory(state)
-        territory = state.game_board.territories[name_of_territory_to_reinforce]
+        territory = state.board.territories[name_of_territory_to_reinforce]
         if territory.ruler != '':
             raise TerritoryNotNeutralException()
         else:
             territory.troops += 1
 
     def fortify_territory(self, state):
-        name_of_territory_to_fortify = self.agent.fortify_territory(state)
-        territory = state.game_board.territories[name_of_territory_to_fortify]
+        name_of_territory_to_fortify, name_of_neighbor, troop_count = self.agent.fortify_territory(state)
+        territory = state.board.territories[name_of_territory_to_fortify]
+        neighbor = state.board.territories[name_of_neighbor]
+        territory.troops += troop_count
+        neighbor += troop_count
 
     # return the number of troops (1 or 2) committed to defend against an attack
     def defend_territory(self, state, attacked_territory):
@@ -129,30 +133,13 @@ class Player:
             target_territory.ruler = self
             target_territory.troops = attacker_count
 
-    def get_occupied_territories(self, state):
-        occupied_territories = []
-        for territory in state.game_board.territories:
-            if territory.ruler == self:
-                occupied_territories.append(territory)
-
-        return occupied_territories
-
-    def get_occupied_continents(self, state):
-        occupied_continents = []
-        for continent in state.game_board.continents:
-            continent_ruler = continent.get_ruler()
-            if continent_ruler == self:
-                occupied_continents.append(continent)
-
-        return occupied_continents
-
     def receive_troops(self, state):
         # calculate occupied territory bonus
-        occupied_territories = self.get_occupied_territories(state)
+        occupied_territories = state.board.territories_occupied_by(self)
         territory_bonus = max(len(occupied_territories), 9)//3
 
         # calculate occupied continent bonus
-        occupied_continents = self.get_occupied_continents(state)
+        occupied_continents = state.board.continents_occupied_by(self)
         continent_bonus = 0
         for continent in occupied_continents:
             continent_bonus += continent.army_bonus
@@ -173,9 +160,9 @@ class Player:
     def attack(self, state):
         pass
 
-    def get_territories_to_attack(self, state):
+    def territories_to_attack(self, state):
         target_territories = set()
-        occupied_territories = self.get_occupied_territories(state)
+        occupied_territories = state.board.occupied_territories(state)
         for territory in occupied_territories:
             for neighbor in territory.neighbors:
                 if neighbor.ruler != self:
@@ -185,7 +172,7 @@ class Player:
 
     def territories_on_the_border(self, state):
         border_territories = set()
-        occupied_territories = self.get_occupied_territories(state)
+        occupied_territories = state.board.occupied_territories(self)
         for territory in occupied_territories:
             for neighbor in territory.neighbors:
                 if neighbor.ruler != self:

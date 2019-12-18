@@ -4,16 +4,14 @@ from logger import Logger
 
 
 class Game:
-    game_board = None
     state = None
     players = []
-    game_pile = []
+    pile = None
 
-    def __init__(self, game_board, state, players, game_pile):
-        self.game_board = game_board
+    def __init__(self, state, players, pile):
         self.state = state
         self.players = players
-        self.game_pile = game_pile
+        self.pile = pile
 
     @staticmethod
     def dice_roll():
@@ -24,7 +22,7 @@ class Game:
         # 1) decide the first player to move based on dice roll
         maxi = 0
         maxi_player = -1
-        for i in range(self.players):
+        for i in range(2):
             dice_roll = Game.dice_roll()
             Logger.log(f'Player {self.players[i]} rolls a {dice_roll}', verbose)
             if dice_roll > maxi:
@@ -41,33 +39,13 @@ class Game:
         # " Remove the Secret Mission cards and the 2 “wild” cards from the RISK card deck.
         #   Shuffle thoroughly and deal the cards, face down, into 3 equal piles.
         #   Both you and your opponent choose a different pile. The remaining pile is neutral. "
-        self.game_pile.remove_card(Card(CardType.WILDCARD, None))
-        self.game_pile.remove_card(Card(CardType.WILDCARD, None))
-        self.game_pile.shuffle()
-        player0_cards = self.game_pile[:18]
-        player1_cards = self.game_pile[18:36]
-        neutral_cards = self.game_pile[36:54]
-
+        #
         # 4)
         # " Place one of your Infantry onto each of the 14 territories shown on the RISK cards in your pile.
         #   Your opponent does the same.
         #   Then place one “neutral” Infantry onto each of the remaining 14 “neutral” territories. "
-        for card in player0_cards:
-            territory = self.game_board.territories[card.territory_name]
-            territory.ruler = player0.name
-            territory.troops = 1
-            Logger.log(f'Territory {territory} taken by {player0}', verbose)
-
-        for card in player1_cards:
-            territory = self.game_board.territories[card.territory_name]
-            territory.ruler = player1.name
-            territory.troops = 1
-            Logger.log(f'Territory {territory} taken by {player1}', verbose)
-
-        for card in neutral_cards:
-            territory = self.game_board.territories[card.territory_name]
-            territory.troops = 1
-            Logger.log(f'Territory {territory} taken by neutrals', verbose)
+        self.assign_cards(player0, player1, False, True)
+        exit(0)
 
         # 5)
         # " After every territory on the board has been claimed,
@@ -77,7 +55,8 @@ class Game:
         #   placing it to block your opponent’s possible advance. "
         # Players have 22 troops remaining each.
         for _ in range(11):
-            for i in range(self.players):
+            for i in range(2):
+                self.state.player_to_move = self.players[i]
                 self.players[i].reinforce_owned_territory(self.state)
                 self.players[i].reinforce_owned_territory(self.state)
                 self.players[i].reinforce_neutral_territory(self.state)
@@ -86,10 +65,36 @@ class Game:
         # " After all the armies have been placed on the board,
         #   return the two “wild” cards to the RISK card deck,
         #   shuffle the deck and start to play. "
-        self.game_pile.add_card(Card(CardType.WILDCARD, None))
-        self.game_pile.add_card(Card(CardType.WILDCARD, None))
-        self.game_pile.shuffle()
+        self.pile.add_card(Card(CardType.WILDCARD, None))
+        self.pile.add_card(Card(CardType.WILDCARD, None))
+        self.pile.shuffle()
         Logger.log('Shuffling cards\nSetup over.', verbose)
+
+    def assign_cards(self, player0, player1, verbose, plot_verbose):
+        self.pile.remove_card_with_index(0)
+        self.pile.remove_card_with_index(0)
+        # cheating until better implementation
+        self.pile.shuffle()
+        player0_cards = self.pile[:14]
+        player1_cards = self.pile[14:28]
+        neutral_cards = self.pile[28:42]
+        for card in player0_cards:
+            territory = self.state.board.territories[card.territory_name]
+            territory.ruler = player0.name
+            territory.troops = 1
+            Logger.log(f'Territory {territory} taken by {player0}', verbose)
+        for card in player1_cards:
+            territory = self.state.board.territories[card.territory_name]
+            territory.ruler = player1.name
+            territory.troops = 1
+            Logger.log(f'Territory {territory} taken by {player1}', verbose)
+        for card in neutral_cards:
+            territory = self.state.board.territories[card.territory_name]
+            territory.troops = 1
+            Logger.log(f'Territory {territory} taken by neutrals', verbose)
+
+        if plot_verbose:
+            self.state.board.plot()
 
     def play_game(self):
         pass

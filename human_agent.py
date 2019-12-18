@@ -3,9 +3,14 @@ from agent import Agent
 
 class HumanAgent(Agent):
     # overriding abstract method
-    def reinforce_territory(self, state):
+    def reinforce_owned_territory(self, state):
         territory_name = input('Reinforce territory: ')
-        return territory_name
+        return state.board.territories[territory_name]
+
+    # overriding abstract method
+    def reinforce_neutral_territory(self, state):
+        territory_name = input('Reinforce territory: ')
+        return state.board.territories[territory_name]
 
     # overriding abstract method
     def defend_territory(self, state, attacked_territory):
