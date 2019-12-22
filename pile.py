@@ -28,7 +28,6 @@ class Pile:
 
         with open(path_to_file) as f:
             card_count = int(f.readline().strip())
-            print(card_count)
             for _ in range(card_count):
                 territory = f.readline().strip()
                 card_type = f.readline().strip()

@@ -10,6 +10,8 @@ class Board:
     territories = {}
     paths = []
     continents = {}
+    # colors indicating occupation: player0, player1, neutrals
+    territory_colors = ['#283493', '#932834', '#616161']
 
     def __init__(self, territories, paths, continents):
         self.territories = territories
@@ -33,41 +35,48 @@ class Board:
 
         return representation
 
-    def plot(self):
+    def plot(self, players):
         G = nx.Graph()
         for territory in self.territories.values():
-            label = territory.name + ', t = ' + str(territory.troops)
-            G.add_node(territory, label=label, shape='circle')
+            label = f'{territory.name}\nt = {territory.troops}'
+            # label = f'{territory.name}\nt = {territory.troops}, ({territory.board_pos})'
+            G.add_node(territory, label=label, fontsize=30,
+                       pos=territory.board_pos, fixedsize=True,
+                       height=territory.board_height, width=territory.board_width,
+                       shape='oval', fontcolor='#FFFFFF', penwidth=35,
+                       fillcolor=territory.fill_color, color=territory.border_color,  style='filled')
         print('Nodes: ', G.nodes)
-        my_edges = [(path.from_territory, path.to_territory) for path in self.paths]
-        G.add_edges_from(my_edges)
+        for path in self.paths:
+            G.add_edge(path.from_territory, path.to_territory, penwidth=5)
         print('Edges: ', G.edges)
         A = to_agraph(G)
-        A.graph_attr.update(overlap='false', splines='true')
+        A.graph_attr.update(splines='true', bgcolor='#BDBDBD')
         A.layout()
-        A.draw('test_graph.png', prog='neato')
+        A.draw('test_graph.png',)
 
     @staticmethod
     def from_config_file(path_to_file):
         new_territories = {}
         new_paths = []
         new_continents = {}
+        continent_colors = ['#EF6C00', '#9E9D24', '#689F38', '#00ACC1', '#6D4C41', '#F06292']
 
         with open(path_to_file) as f:
             continent_count, territory_count = map(int, f.readline().split())
 
             # read continents and their respective territories
-            for _ in range(continent_count):
+            for i in range(continent_count):
                 continent_name = f.readline().strip()
                 continent_bonus, continent_territory_count = map(int, f.readline().split())
                 new_continent = Continent(continent_name, [], continent_bonus)
                 new_continents[continent_name] = new_continent
 
                 for _ in range(continent_territory_count):
-                    new_territory_name = f.readline().strip()
-                    new_territory = Territory(new_territory_name)
+                    name = f.readline().strip()
+                    board_pos, board_height, board_width = f.readline().strip().split()
+                    new_territory = Territory(name, board_pos, board_height, board_width, continent_colors[i])
                     new_continent.add_territory(new_territory)
-                    new_territories[new_territory_name] = new_territory
+                    new_territories[name] = new_territory
 
                 f.readline()
 

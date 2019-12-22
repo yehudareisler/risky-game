@@ -44,7 +44,7 @@ class Game:
         # " Place one of your Infantry onto each of the 14 territories shown on the RISK cards in your pile.
         #   Your opponent does the same.
         #   Then place one “neutral” Infantry onto each of the remaining 14 “neutral” territories. "
-        self.assign_cards(player0, player1, False, True)
+        self.assign_cards(False, True)
         exit(0)
 
         # 5)
@@ -70,7 +70,7 @@ class Game:
         self.pile.shuffle()
         Logger.log('Shuffling cards\nSetup over.', verbose)
 
-    def assign_cards(self, player0, player1, verbose, plot_verbose):
+    def assign_cards(self, verbose=False, plot_verbose=False):
         self.pile.remove_card_with_index(0)
         self.pile.remove_card_with_index(0)
         # cheating until better implementation
@@ -80,21 +80,24 @@ class Game:
         neutral_cards = self.pile[28:42]
         for card in player0_cards:
             territory = self.state.board.territories[card.territory_name]
-            territory.ruler = player0.name
+            territory.ruler = self.players[0].name
             territory.troops = 1
-            Logger.log(f'Territory {territory} taken by {player0}', verbose)
+            territory.fill_color = self.state.board.territory_colors[0]
+            Logger.log(f'Territory {territory} taken by {self.players[0]}', verbose)
         for card in player1_cards:
             territory = self.state.board.territories[card.territory_name]
-            territory.ruler = player1.name
+            territory.ruler = self.players[1].name
             territory.troops = 1
-            Logger.log(f'Territory {territory} taken by {player1}', verbose)
+            territory.fill_color = self.state.board.territory_colors[1]
+            Logger.log(f'Territory {territory} taken by {self.players[1]}', verbose)
         for card in neutral_cards:
             territory = self.state.board.territories[card.territory_name]
             territory.troops = 1
+            territory.fill_color = self.state.board.territory_colors[2]
             Logger.log(f'Territory {territory} taken by neutrals', verbose)
 
         if plot_verbose:
-            self.state.board.plot()
+            self.state.board.plot(self.players)
 
     def play_game(self):
         pass
