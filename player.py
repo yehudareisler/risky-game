@@ -1,6 +1,7 @@
 from game import Game
 from card import CardType
 from exceptions import *
+from logger import Logger
 
 
 class Player:
@@ -83,16 +84,19 @@ class Player:
     def reinforce_owned_territory(self, state):
         territory = self.agent.reinforce_owned_territory(state)
         if territory.ruler != self.name:
+            Logger.log(f'{territory}\'s ruler is {territory.ruler}, not {self.name}!', state.verbose)
             raise TerritoryNotOwnedByPlayerException()
         else:
+            Logger.log(f'{self.name} reinforces {territory.name}', state.verbose)
             territory.troops += 1
 
     def reinforce_neutral_territory(self, state):
-        name_of_territory_to_reinforce = self.agent.reinforce_neutral_territory(state)
-        territory = state.board.territories[name_of_territory_to_reinforce]
+        territory = self.agent.reinforce_neutral_territory(state)
         if territory.ruler != '':
+            Logger.log(f'{territory} is not a neutral territory!', state.verbose)
             raise TerritoryNotNeutralException()
         else:
+            Logger.log(f'Neutral {territory.name} reinforced by {self.name}', state.verbose)
             territory.troops += 1
 
     def fortify_territory(self, state):

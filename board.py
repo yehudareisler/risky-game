@@ -1,6 +1,5 @@
 import networkx as nx
 from networkx.drawing.nx_agraph import to_agraph
-from datetime import datetime
 
 from continent import Continent
 from path import Path
@@ -11,7 +10,7 @@ class Board:
     territories = {}
     paths = []
     continents = {}
-    # colors indicating occupation: player0, player1, neutrals
+    # colors indicating occupation: player0, player1, neutrals (blue, red, gray)
     territory_colors = ['#283493', '#932834', '#616161']
 
     def __init__(self, territories, paths, continents):
@@ -36,25 +35,31 @@ class Board:
 
         return representation
 
-    def plot(self, players):
+    def plot(self, plot_file_name):
+        # init graph
         G = nx.Graph()
+
+        # add nodes
         for territory in self.territories.values():
-            label = f'{territory.name}\nt = {territory.troops}'
+            label = f'{territory.name}\nt = {territory.troops}\n{territory.ruler}'
             # label = f'{territory.name}\nt = {territory.troops}, ({territory.board_pos})'
             G.add_node(territory, label=label, fontsize=30,
                        pos=territory.board_pos, fixedsize=True,
                        height=territory.size_on_board, width=territory.size_on_board,
                        shape='oval', fontcolor='#FFFFFF', penwidth=35,
                        fillcolor=territory.fill_color, color=territory.border_color,  style='filled')
-        print('Nodes: ', G.nodes)
+
+        # add edges
         for path in self.paths:
             G.add_edge(path.from_territory, path.to_territory, penwidth=5)
-        print('Edges: ', G.edges)
+
+        # convert to graphviz agraph
         A = to_agraph(G)
         A.graph_attr.update(splines='true', bgcolor='#BDBDBD')
         A.layout()
-        dtobj = datetime.now()
-        A.draw(f'{dtobj.hour}_{dtobj.minute}_{dtobj.second}_graph.png',)
+
+        # draw and export
+        A.draw(plot_file_name)
 
     @staticmethod
     def from_config_file(path_to_file):
@@ -115,7 +120,7 @@ class Board:
 
         return neighbors
 
-    def occupied_territories(self, player=None):
+    def occupied_territories(self, player):
         occupied_territories = []
         for territory_name in self.territories:
             territory = self.territories[territory_name]
@@ -123,6 +128,15 @@ class Board:
                 occupied_territories.append(territory)
 
         return occupied_territories
+
+    def neutral_territories(self):
+        neutral_territories = []
+        for territory_name in self.territories:
+            territory = self.territories[territory_name]
+            if not territory.ruler:
+                neutral_territories.append(territory)
+
+        return neutral_territories
 
     def occupied_continents(self, player=None):
         occupied_continents = []

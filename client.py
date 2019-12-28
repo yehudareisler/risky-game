@@ -11,10 +11,10 @@ def main():
     board = Board.from_config_file('board.cfg')
     pile = Pile.from_config_file('pile.cfg')
     players = [
-        Player('Nandor', HumanAgent()),
-        Player('Bot', RandomAgent())
+        Player('Bot_1', RandomAgent()),
+        Player('Bot_2', RandomAgent())
     ]
-    state = State(board)
+    state = State(board, True, True)
     game = Game(state, players, pile)
     game.execute_setup()
 

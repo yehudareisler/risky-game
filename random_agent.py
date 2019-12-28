@@ -13,7 +13,7 @@ class RandomAgent(Agent):
 
     # overriding abstract method
     def reinforce_neutral_territory(self, state):
-        territories = state.board.occupied_territories()
+        territories = state.board.neutral_territories()
         territory = random.choice(territories)
         return territory
 

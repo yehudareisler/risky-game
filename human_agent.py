@@ -4,12 +4,12 @@ from agent import Agent
 class HumanAgent(Agent):
     # overriding abstract method
     def reinforce_owned_territory(self, state):
-        territory_name = input('Reinforce territory: ')
+        territory_name = input('Reinforce owned territory: ').strip()
         return state.board.territories[territory_name]
 
     # overriding abstract method
     def reinforce_neutral_territory(self, state):
-        territory_name = input('Reinforce territory: ')
+        territory_name = input('Reinforce neutral territory: ').strip()
         return state.board.territories[territory_name]
 
     # overriding abstract method
@@ -19,7 +19,7 @@ class HumanAgent(Agent):
 
     # overriding abstract method
     def wants_to_attack(self, state):
-        wants_to_attack = input('Attack this turn (Y-Yes, other-No): ')
+        wants_to_attack = input('Attack this turn (Y-Yes, other-No): ').strip()
         if wants_to_attack == 'Y':
             return True
         else:
@@ -27,7 +27,7 @@ class HumanAgent(Agent):
 
     # overriding abstract method
     def wants_to_fortify(self, state):
-        wants_to_fortify = input('Fortify this turn (Y-Yes, other-No): ')
+        wants_to_fortify = input('Fortify this turn (Y-Yes, other-No): ').strip()
         if wants_to_fortify == 'Y':
             return True
         else:
@@ -35,7 +35,7 @@ class HumanAgent(Agent):
 
     # overriding abstract method
     def fortify_territory(self, state):
-        to_territory_name = input('Fortify territory: ')
-        from_territory_name = input('From neighboring territory: ')
+        to_territory_name = input('Fortify territory: ').strip()
+        from_territory_name = input('From neighboring territory: ').strip()
         troop_count = int(input('Move this many troops: '))
         return to_territory_name, from_territory_name, troop_count
