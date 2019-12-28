@@ -4,16 +4,14 @@ class Territory:
     ruler = ''
     troops = 0
     board_pos = ''
-    board_height = 0
-    board_width = 0
+    size_on_board = 0
     fill_color = ''
     border_color = ''
 
-    def __init__(self, name, board_pos, board_height, board_width, border_color):
+    def __init__(self, name, board_pos, size_on_board, border_color):
         self.name = name
         self.board_pos = board_pos
-        self.board_height = board_height
-        self.board_width = board_width
+        self.size_on_board = size_on_board
         self.border_color = border_color
 
     def __repr__(self):

@@ -1,5 +1,6 @@
 import networkx as nx
 from networkx.drawing.nx_agraph import to_agraph
+from datetime import datetime
 
 from continent import Continent
 from path import Path
@@ -42,7 +43,7 @@ class Board:
             # label = f'{territory.name}\nt = {territory.troops}, ({territory.board_pos})'
             G.add_node(territory, label=label, fontsize=30,
                        pos=territory.board_pos, fixedsize=True,
-                       height=territory.board_height, width=territory.board_width,
+                       height=territory.size_on_board, width=territory.size_on_board,
                        shape='oval', fontcolor='#FFFFFF', penwidth=35,
                        fillcolor=territory.fill_color, color=territory.border_color,  style='filled')
         print('Nodes: ', G.nodes)
@@ -52,7 +53,8 @@ class Board:
         A = to_agraph(G)
         A.graph_attr.update(splines='true', bgcolor='#BDBDBD')
         A.layout()
-        A.draw('test_graph.png',)
+        dtobj = datetime.now()
+        A.draw(f'{dtobj.hour}_{dtobj.minute}_{dtobj.second}_graph.png',)
 
     @staticmethod
     def from_config_file(path_to_file):
@@ -73,8 +75,8 @@ class Board:
 
                 for _ in range(continent_territory_count):
                     name = f.readline().strip()
-                    board_pos, board_height, board_width = f.readline().strip().split()
-                    new_territory = Territory(name, board_pos, board_height, board_width, continent_colors[i])
+                    board_pos, size_on_board = f.readline().strip().split()
+                    new_territory = Territory(name, board_pos, size_on_board, continent_colors[i])
                     new_continent.add_territory(new_territory)
                     new_territories[name] = new_territory
 
