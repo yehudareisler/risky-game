@@ -11,10 +11,10 @@ class Pile:
     def __getitem__(self, key):
         return self.cards[key]
 
-    def __repr__(self):
+    def __str__(self):
         representation = f'Pile with {len(self.cards)} cards:\n'
         for card in self.cards:
-            representation += f'{repr(card)}\n'
+            representation += f'{card}\n'
 
         return representation
 

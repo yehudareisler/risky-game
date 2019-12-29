@@ -7,6 +7,8 @@ class Game:
 
     def __init__(self, state):
         self.state = state
+        self.starter = None
+        self.winner = None
 
     @staticmethod
     def dice_roll():
@@ -38,8 +40,7 @@ class Game:
             territory.fill_color = self.state.board.territory_colors[2]
             Logger.log(f'Territory {territory} taken by neutrals', self.state.verbose)
 
-        if self.state.display_plot:
-            self.state.board.plot('after_init_step4.png')
+        self.state.board.plot('after_init_step4.png', self.state.display_plot)
 
     def reinforce_initial_territories(self):
         # Players have 22 troops remaining each.
@@ -51,23 +52,25 @@ class Game:
                 self.state.player_to_move, self.state.player_to_wait = \
                     self.state.player_to_wait, self.state.player_to_move
 
-        if self.state.display_plot:
-            self.state.board.plot('after_init_step5.png')
+        self.state.board.plot('after_init_step5.png', self.state.display_plot)
 
     def execute_setup(self):
         Logger.log("Initializing setup phase...", self.state.verbose)
         # 1) decide the first player to move based on dice roll
-        maxi = 0
-        maxi_player = -1
-        for i in range(2):
-            dice_roll = Game.dice_roll()
-            Logger.log(f'Player {self.state.players[i]} rolls a {dice_roll}', self.state.verbose)
-            if dice_roll > maxi:
-                maxi = dice_roll
-                maxi_player = i
+        while True:
+            dice_roll_0 = Game.dice_roll()
+            Logger.log(f'Player {self.state.players[0]} rolls a {dice_roll_0}', self.state.verbose)
+            dice_roll_1 = Game.dice_roll()
+            Logger.log(f'Player {self.state.players[1]} rolls a {dice_roll_1}', self.state.verbose)
+            if dice_roll_0 == dice_roll_1:
+                Logger.log('It\'s a draw! Throwing dice again...', self.state.verbose)
+            else:
+                maxi_player = int(dice_roll_0 < dice_roll_1)
+                break
 
         # 2) reorder players based on the first to move
         self.reorder_players_by_next_to_move(maxi_player)
+        self.starter = self.state.players[0]
         self.state.player_to_move = self.state.players[0]
         self.state.player_to_wait = self.state.players[1]
         Logger.log(f'Player to start: {self.state.players[0]}', self.state.verbose)
@@ -108,14 +111,15 @@ class Game:
             self.state.player_to_move.take_turn(self.state)
             move_count += 1
             if move_count % 10 == 0:
-                self.state.board.plot(f'after_turn_{move_count}.png')
+                self.state.board.plot(f'after_turn_{move_count}.png', self.state.display_plot)
             # change players' state
             self.state.player_to_move, self.state.player_to_wait = \
                 self.state.player_to_wait, self.state.player_to_move
-            
+
+        self.find_winner()
         Logger.log(f'Game finished after {move_count} moves.\n', self.state.verbose)
-        Logger.log(f'The winner is {self.winner()}!!!', self.state.verbose)
-        self.state.board.plot('game_finished.png')
+        Logger.log(f'The winner is {self.winner}!!!', self.state.verbose)
+        self.state.board.plot('game_finished.png', self.state.display_plot)
 
     def reorder_players_by_next_to_move(self, next_player_index):
         self.state.players = self.state.players[next_player_index:] + self.state.players[:next_player_index]
@@ -125,9 +129,9 @@ class Game:
         player1_territories = self.state.board.occupied_territories(self.state.players[1])
         return (not player0_territories) or (not player1_territories)
 
-    def winner(self):
+    def find_winner(self):
         player0_territories = self.state.board.occupied_territories(self.state.players[0])
-        if not player0_territories:
-            return self.state.players[1]
+        if player0_territories:
+            self.winner = self.state.players[0]
         else:
-            return self.state.players[0]
+            self.winner = self.state.players[1]

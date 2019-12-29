@@ -1,3 +1,5 @@
+import copy
+
 from game import Game
 from board import Board
 from human_agent import HumanAgent
@@ -14,11 +16,36 @@ def main():
         Player('Bot_1', RandomAgent()),
         Player('Bot_2', RandomAgent())
     ]
-    state = State(board, players, pile, True, True)
+    state = State(board, players, pile, False, False)
     game = Game(state)
     game.execute_setup()
     game.play_game()
 
 
+def test():
+    board = Board.from_config_file('board.cfg')
+    pile = Pile.from_config_file('pile.cfg')
+    players = [
+        Player('Bot_1', RandomAgent()),
+        Player('Bot_2', RandomAgent())
+    ]
+    game_count = 10000
+    starter_winner_count = 0
+
+    for i in range(game_count):
+        new_board = copy.deepcopy(board)
+        new_pile = copy.deepcopy(pile)
+        new_players = copy.deepcopy(players)
+        state = State(new_board, new_players, new_pile, False, False)
+        game = Game(state)
+        game.execute_setup()
+        game.play_game()
+        print(f'At game #{i:04}')
+        if game.starter == game.winner:
+            starter_winner_count += 1
+
+    print(f'Percentage of games won by starter: {starter_winner_count/game_count*100}%\n')
+
+
 if __name__ == '__main__':
-    main()
+    test()

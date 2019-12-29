@@ -4,5 +4,5 @@ class Path:
         self.from_territory = from_territory
         self.to_territory = to_territory
 
-    def __repr__(self):
+    def __str__(self):
         return f'Path from {self.from_territory} to {self.to_territory}'

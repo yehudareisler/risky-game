@@ -10,7 +10,7 @@ class Territory:
         self.troops = 0
         self.fill_color = ''
 
-    def __repr__(self):
+    def __str__(self):
         return self.name
 
     def add_neighbor(self, neighbor):
@@ -34,14 +34,6 @@ class Territory:
 
         return enemy_neighbors
 
-    def friendly_neighbors(self):
-        friendly_neighbors = []
-        for neighbor in self.neighbors:
-            if neighbor.ruler == self.ruler:
-                friendly_neighbors.append(neighbor)
-
-        return friendly_neighbors
-
     def friendly_fortifiers(self):
         friendly_fortifiers = []
         for neighbor in self.neighbors:
@@ -56,9 +48,6 @@ class Territory:
                 return True
 
         return False
-
-    def can_be_fortify_source(self):
-        return self.troops > 1 and self.friendly_neighbors()
 
     def can_be_fortify_target(self):
         return self.friendly_fortifiers() and self.enemy_neighbors()

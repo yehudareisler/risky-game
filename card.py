@@ -9,8 +9,8 @@ class Card:
         self.territory_name = territory_name
         self.card_type = card_type
 
-    def __repr__(self):
-        return f'Card of {self.territory_name} with {repr(self.card_type)} type'
+    def __str__(self):
+        return f'Card of {self.territory_name} with {self.card_type} type'
 
 
 class CardType(Enum):
@@ -19,5 +19,5 @@ class CardType(Enum):
     CAVALRY = 2
     ARTILLERY = 3
 
-    def __repr__(self):
+    def __str__(self):
         return self.name

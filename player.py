@@ -17,7 +17,7 @@ class Player:
             CardType.ARTILLERY: 0
         }
 
-    def __repr__(self):
+    def __str__(self):
         return self.name
 
     # To simplify the implementation, all players must turn in a set as soon as they can.
@@ -149,9 +149,6 @@ class Player:
                 target_territory.troops -= 1
 
         # transfer ownership if the attacked territory loses all of its troops
-        if target_territory.troops < 0:
-            Logger.log('REALLY WEIRD', state.verbose)
-
         if target_territory.troops == 0:
             Logger.log(f'{target_territory} has been conquered by {self}', state.verbose)
             target_territory.ruler = self

@@ -15,7 +15,7 @@ class Board:
         # colors indicating occupation: player0, player1, neutrals (blue, red, gray)
         self.territory_colors = ['#283493', '#932834', '#616161']
 
-    def __repr__(self):
+    def __str__(self):
         representation = ''
         representation += f'Game map with {len(self.continents.keys())} continents ' \
                           f'and {len(self.territories.keys())} territories:\n'
@@ -32,31 +32,32 @@ class Board:
 
         return representation
 
-    def plot(self, plot_file_name):
-        # init graph
-        G = nx.Graph()
+    def plot(self, plot_file_name, verbose):
+        if verbose:
+            # init graph
+            G = nx.Graph()
 
-        # add nodes
-        for territory in self.territories.values():
-            label = f'{territory.name}\nt = {territory.troops}\n{territory.ruler}'
-            # label = f'{territory.name}\nt = {territory.troops}, ({territory.board_pos})'
-            G.add_node(territory, label=label, fontsize=30,
-                       pos=territory.board_pos, fixedsize=True,
-                       height=territory.size_on_board, width=territory.size_on_board,
-                       shape='oval', fontcolor='#FFFFFF', penwidth=35,
-                       fillcolor=territory.fill_color, color=territory.border_color,  style='filled')
+            # add nodes
+            for territory in self.territories.values():
+                label = f'{territory.name}\nt = {territory.troops}\n{territory.ruler}'
+                # label = f'{territory.name}\nt = {territory.troops}, ({territory.board_pos})'
+                G.add_node(territory, label=label, fontsize=30,
+                           pos=territory.board_pos, fixedsize=True,
+                           height=territory.size_on_board, width=territory.size_on_board,
+                           shape='oval', fontcolor='#FFFFFF', penwidth=35,
+                           fillcolor=territory.fill_color, color=territory.border_color,  style='filled')
 
-        # add edges
-        for path in self.paths:
-            G.add_edge(path.from_territory, path.to_territory, penwidth=5)
+            # add edges
+            for path in self.paths:
+                G.add_edge(path.from_territory, path.to_territory, penwidth=5)
 
-        # convert to graphviz agraph
-        A = to_agraph(G)
-        A.graph_attr.update(splines='true', bgcolor='#BDBDBD')
-        A.layout()
+            # convert to graphviz agraph
+            A = to_agraph(G)
+            A.graph_attr.update(splines='true', bgcolor='#BDBDBD')
+            A.layout()
 
-        # draw and export
-        A.draw(plot_file_name)
+            # draw and export
+            A.draw(plot_file_name)
 
     @staticmethod
     def from_config_file(path_to_file):
