@@ -4,35 +4,73 @@ from logger import Logger
 
 
 class Game:
-    state = None
-    players = []
-    pile = None
 
-    def __init__(self, state, players, pile):
+    def __init__(self, state):
         self.state = state
-        self.players = players
-        self.pile = pile
 
     @staticmethod
     def dice_roll():
         return random.randint(1, 6)
 
+    def assign_cards(self):
+        self.state.pile.remove_card_with_index(0)
+        self.state.pile.remove_card_with_index(0)
+        # cheating until better implementation
+        self.state.pile.shuffle()
+        player0_cards = self.state.pile[:14]
+        player1_cards = self.state.pile[14:28]
+        neutral_cards = self.state.pile[28:42]
+        for card in player0_cards:
+            territory = self.state.board.territories[card.territory_name]
+            territory.ruler = self.state.players[0]
+            territory.troops = 1
+            territory.fill_color = self.state.board.territory_colors[0]
+            Logger.log(f'Territory {territory} taken by {self.state.players[0]}', self.state.verbose)
+        for card in player1_cards:
+            territory = self.state.board.territories[card.territory_name]
+            territory.ruler = self.state.players[1]
+            territory.troops = 1
+            territory.fill_color = self.state.board.territory_colors[1]
+            Logger.log(f'Territory {territory} taken by {self.state.players[1]}', self.state.verbose)
+        for card in neutral_cards:
+            territory = self.state.board.territories[card.territory_name]
+            territory.troops = 1
+            territory.fill_color = self.state.board.territory_colors[2]
+            Logger.log(f'Territory {territory} taken by neutrals', self.state.verbose)
+
+        if self.state.display_plot:
+            self.state.board.plot('after_init_step4.png')
+
+    def reinforce_initial_territories(self):
+        # Players have 22 troops remaining each.
+        for _ in range(11):
+            for i in range(2):
+                self.state.players[i].reinforce_owned_territory(self.state)
+                self.state.players[i].reinforce_owned_territory(self.state)
+                self.state.players[i].reinforce_neutral_territory(self.state)
+                self.state.player_to_move, self.state.player_to_wait = \
+                    self.state.player_to_wait, self.state.player_to_move
+
+        if self.state.display_plot:
+            self.state.board.plot('after_init_step5.png')
+
     def execute_setup(self):
-        Logger.log("Initializing game...\nStarting setup phase...", self.state.verbose)
+        Logger.log("Initializing setup phase...", self.state.verbose)
         # 1) decide the first player to move based on dice roll
         maxi = 0
         maxi_player = -1
         for i in range(2):
             dice_roll = Game.dice_roll()
-            Logger.log(f'Player {self.players[i]} rolls a {dice_roll}', self.state.verbose)
+            Logger.log(f'Player {self.state.players[i]} rolls a {dice_roll}', self.state.verbose)
             if dice_roll > maxi:
                 maxi = dice_roll
                 maxi_player = i
 
         # 2) reorder players based on the first to move
         self.reorder_players_by_next_to_move(maxi_player)
-        self.state.player_to_move = self.players[0]
-        Logger.log(f'Player to start: {self.players[0]}', self.state.verbose)
+        self.state.player_to_move = self.state.players[0]
+        self.state.player_to_wait = self.state.players[1]
+        Logger.log(f'Player to start: {self.state.players[0]}', self.state.verbose)
 
         # 3)
         # " Remove the Secret Mission cards and the 2 “wild” cards from the RISK card deck.
@@ -57,69 +95,39 @@ class Game:
         # " After all the armies have been placed on the board,
         #   return the two “wild” cards to the RISK card deck,
         #   shuffle the deck and start to play. "
-        self.pile.add_card(Card(CardType.WILDCARD, None))
-        self.pile.add_card(Card(CardType.WILDCARD, None))
-        self.pile.shuffle()
+        self.state.pile.add_card(Card(None, CardType.WILDCARD))
+        self.state.pile.add_card(Card(None, CardType.WILDCARD))
+        self.state.pile.shuffle()
         Logger.log('Shuffling cards...\nSetup over.', self.state.verbose)
 
-    def assign_cards(self):
-        self.pile.remove_card_with_index(0)
-        self.pile.remove_card_with_index(0)
-        # cheating until better implementation
-        self.pile.shuffle()
-        player0_cards = self.pile[:14]
-        player1_cards = self.pile[14:28]
-        neutral_cards = self.pile[28:42]
-        for card in player0_cards:
-            territory = self.state.board.territories[card.territory_name]
-            territory.ruler = self.players[0].name
-            territory.troops = 1
-            territory.fill_color = self.state.board.territory_colors[0]
-            Logger.log(f'Territory {territory} taken by {self.players[0]}', self.state.verbose)
-        for card in player1_cards:
-            territory = self.state.board.territories[card.territory_name]
-            territory.ruler = self.players[1].name
-            territory.troops = 1
-            territory.fill_color = self.state.board.territory_colors[1]
-            Logger.log(f'Territory {territory} taken by {self.players[1]}', self.state.verbose)
-        for card in neutral_cards:
-            territory = self.state.board.territories[card.territory_name]
-            territory.troops = 1
-            territory.fill_color = self.state.board.territory_colors[2]
-            Logger.log(f'Territory {territory} taken by neutrals', self.state.verbose)
-
-        if self.state.display_plot:
-            self.state.board.plot('setup_step4.png')
-
-    def reinforce_initial_territories(self):
-        # Players have 22 troops remaining each.
-        for _ in range(11):
-            for i in range(2):
-                self.state.player_to_move = self.players[i]
-                self.players[i].reinforce_owned_territory(self.state)
-                self.players[i].reinforce_owned_territory(self.state)
-                self.players[i].reinforce_neutral_territory(self.state)
-
-        if self.state.display_plot:
-            self.state.board.plot('setup_step5.png')
-
     def play_game(self):
-        pass
+        Logger.log('Starting game...', self.state.verbose)
+        move_count = 0
+        while not self.over():
+            # take turn
+            self.state.player_to_move.take_turn(self.state)
+            move_count += 1
+            if move_count % 10 == 0:
+                self.state.board.plot(f'after_turn_{move_count}.png')
+            # change players' state
+            self.state.player_to_move, self.state.player_to_wait = \
+                self.state.player_to_wait, self.state.player_to_move
+            
+        Logger.log(f'Game finished after {move_count} moves.\n', self.state.verbose)
+        Logger.log(f'The winner is {self.winner()}!!!', self.state.verbose)
+        self.state.board.plot('game_finished.png')
 
     def reorder_players_by_next_to_move(self, next_player_index):
-        self.players = self.players[next_player_index:] + self.players[:next_player_index]
+        self.state.players = self.state.players[next_player_index:] + self.state.players[:next_player_index]
 
-    def get_next_player_index(self, current_player_index):
-        if current_player_index + 1 == len(self.players):
-            return 0
+    def over(self):
+        player0_territories = self.state.board.occupied_territories(self.state.players[0])
+        player1_territories = self.state.board.occupied_territories(self.state.players[1])
+        return (not player0_territories) or (not player1_territories)
+
+    def winner(self):
+        player0_territories = self.state.board.occupied_territories(self.state.players[0])
+        if not player0_territories:
+            return self.state.players[1]
         else:
-            return current_player_index + 1
-
-    def players_have_available_troops(self):
-        result = False
-        for player in self.players:
-            if player.available_troops > 0:
-                result = True
-                break
-
-        return result
+            return self.state.players[0]

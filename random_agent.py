@@ -1,5 +1,4 @@
 import random
-import time
 
 from agent import Agent
 
@@ -7,7 +6,7 @@ from agent import Agent
 class RandomAgent(Agent):
     # overriding abstract method
     def reinforce_owned_territory(self, state):
-        territories = state.board.occupied_territories(state.player_to_move)
+        territories = state.board.border_territories(state.player_to_move)
         territory = random.choice(territories)
         return territory
 
@@ -19,34 +18,39 @@ class RandomAgent(Agent):
 
     # overriding abstract method
     def defend_territory(self, state, attacked_territory):
-        troop_count = 1 + random.randint(0, 1)
+        troop_count = 1
+        if attacked_territory.troops > 1:
+            troop_count += random.randint(0, 1)
         return troop_count
 
     # overriding abstract method
     def wants_to_attack(self, state):
-        return bool(random.getrandbits(1))
+        return random.random() < 0.9
 
     # overriding abstract method
     def wants_to_fortify(self, state):
-        return bool(random.getrandbits(1))
+        return random.random() < 0.9
 
     # overriding abstract method
     def fortify_territory(self, state):
-        territories = state.board.occupied_territories(state.player_to_move)
-        to_territory_name = ''
-        from_territory_name = ''
-        troop_count = 0
+        territories = list(state.board.territories_to_fortify_to(state.player_to_move))
+        target = random.choice(territories)
+        source = random.choice(target.friendly_fortifiers())
+        troop_count = random.randint(1, source.troops - 1)
+        return target, source, troop_count
 
-        now = time.time()
-        end_time = now + 2
-        while time.time() < end_time:
-            to_territory_name = random.choice(territories)
-            neighbors = state.board.friendly_neighbors_of_territory(to_territory_name)
-            if neighbors:
-                from_territory_name = random.choice(neighbors)
-                if from_territory_name.troops > 1:
-                    troop_count = random.randint(1, from_territory_name.troops - 1)
-                    break
-            from_territory_name = ''
+    # overriding abstract method
+    def select_attack_source(self, state):
+        territories = list(state.board.territories_to_attack_from(state.player_to_move))
+        territory = random.choice(territories)
+        return territory
 
-        return to_territory_name, from_territory_name, troop_count
+    # overriding abstract method
+    def select_attack_target(self, state, source):
+        territories = list(source.enemy_neighbors())
+        territory = random.choice(territories)
+        return territory
+
+    # overriding abstract method
+    def select_attack_count(self, state, source):
+        return random.randint(1, source.troops - 1)

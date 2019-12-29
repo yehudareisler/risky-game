@@ -4,3 +4,7 @@ class TerritoryNotOwnedByPlayerException(Exception):
 
 class TerritoryNotNeutralException(Exception):
     pass
+
+
+class CannotAttackTerritoryException(Exception):
+    pass

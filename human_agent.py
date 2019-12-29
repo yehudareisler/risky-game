@@ -14,7 +14,7 @@ class HumanAgent(Agent):
 
     # overriding abstract method
     def defend_territory(self, state, attacked_territory):
-        troop_count = int(input('Troops to commit to defend ' + attacked_territory + ': '))
+        troop_count = int(input('Troops committed to defend ' + attacked_territory + ': '))
         return troop_count
 
     # overriding abstract method
@@ -39,3 +39,18 @@ class HumanAgent(Agent):
         from_territory_name = input('From neighboring territory: ').strip()
         troop_count = int(input('Move this many troops: '))
         return to_territory_name, from_territory_name, troop_count
+
+    # overriding abstract method
+    def select_attack_source(self, state):
+        territory_name = input('Attack an enemy territory from: ').strip()
+        return state.board.territories[territory_name]
+
+    # overriding abstract method
+    def select_attack_target(self, state, source):
+        territory_name = input('Attack enemy territory: ').strip()
+        return state.board.territories[territory_name]
+
+    # overriding abstract method
+    def select_attack_count(self, state, source):
+        troop_count = int(input('Troops committed to attack: '))
+        return troop_count

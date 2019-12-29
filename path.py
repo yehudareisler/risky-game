@@ -1,6 +1,4 @@
 class Path:
-    from_territory = None
-    to_territory = None
 
     def __init__(self, from_territory, to_territory):
         self.from_territory = from_territory

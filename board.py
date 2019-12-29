@@ -7,16 +7,13 @@ from territory import Territory
 
 
 class Board:
-    territories = {}
-    paths = []
-    continents = {}
-    # colors indicating occupation: player0, player1, neutrals (blue, red, gray)
-    territory_colors = ['#283493', '#932834', '#616161']
 
     def __init__(self, territories, paths, continents):
         self.territories = territories
         self.paths = paths
         self.continents = continents
+        # colors indicating occupation: player0, player1, neutrals (blue, red, gray)
+        self.territory_colors = ['#283493', '#932834', '#616161']
 
     def __repr__(self):
         representation = ''
@@ -103,28 +100,20 @@ class Board:
                 f.readline()
         return Board(new_territories, new_paths, new_continents)
 
-    def all_neighbors_of_territory(self, target_territory):
-        neighbors = []
-        for path in self.paths:
-            if path.from_territory == target_territory:
-                neighbors.append(path.to_territory)
+    def border_territories(self, reinforcing_player):
+        border_territories = []
+        occupied_territories = self.occupied_territories(reinforcing_player)
+        for territory in occupied_territories:
+            if territory.is_border_territory():
+                border_territories.append(territory)
 
-        return neighbors
-
-    def friendly_neighbors_of_territory(self, target_territory):
-        neighbors = []
-        for path in self.paths:
-            if path.from_territory == target_territory:
-                if path.to_territory.ruler == path.from_territory.ruler:
-                    neighbors.append(path.to_territory)
-
-        return neighbors
+        return border_territories
 
     def occupied_territories(self, player):
         occupied_territories = []
         for territory_name in self.territories:
             territory = self.territories[territory_name]
-            if territory.ruler == player.name:
+            if territory.ruler == player:
                 occupied_territories.append(territory)
 
         return occupied_territories
@@ -138,7 +127,7 @@ class Board:
 
         return neutral_territories
 
-    def occupied_continents(self, player=None):
+    def occupied_continents(self, player):
         occupied_continents = []
         for continent_name in self.continents:
             continent = self.continents[continent_name]
@@ -147,3 +136,21 @@ class Board:
                 occupied_continents.append(continent)
 
         return occupied_continents
+
+    def territories_to_attack_from(self, attacking_player):
+        source_territories = set()
+        occupied_territories = self.occupied_territories(attacking_player)
+        for territory in occupied_territories:
+            if territory.can_be_attack_source(attacking_player):
+                source_territories.add(territory)
+
+        return source_territories
+
+    def territories_to_fortify_to(self, fortifying_player):
+        source_territories = set()
+        occupied_territories = self.occupied_territories(fortifying_player)
+        for territory in occupied_territories:
+            if territory.can_be_fortify_target():
+                source_territories.add(territory)
+
+        return source_territories

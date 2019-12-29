@@ -14,9 +14,10 @@ def main():
         Player('Bot_1', RandomAgent()),
         Player('Bot_2', RandomAgent())
     ]
-    state = State(board, True, True)
-    game = Game(state, players, pile)
+    state = State(board, players, pile, True, True)
+    game = Game(state)
     game.execute_setup()
+    game.play_game()
 
 
 if __name__ == '__main__':

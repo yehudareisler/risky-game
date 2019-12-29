@@ -4,7 +4,6 @@ from card import Card, CardType
 
 
 class Pile:
-    cards = []
 
     def __init__(self, cards):
         self.cards = cards
@@ -45,3 +44,6 @@ class Pile:
 
     def add_card(self, card):
         self.cards.append(card)
+
+    def draw_card(self):
+        return self.cards.pop(0)

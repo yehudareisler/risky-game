@@ -29,3 +29,18 @@ class Agent(ABC):
     # abstract method
     def wants_to_fortify(self, state):
         pass
+
+    # return: territory, attack source
+    # abstract method
+    def select_attack_source(self, state):
+        pass
+
+    # return: territory, attack target
+    # abstract method
+    def select_attack_target(self, state, source):
+        pass
+
+    # return: integer, troops involved in attack
+    # abstract method
+    def select_attack_count(self, state, source):
+        pass
