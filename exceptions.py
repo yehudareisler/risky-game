@@ -8,3 +8,6 @@ class TerritoryNotNeutralException(Exception):
 
 class CannotAttackTerritoryException(Exception):
     pass
+
+class CannotFortifyTerritoryException(Exception):
+    pass

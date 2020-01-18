@@ -9,6 +9,7 @@ class Game:
         self.state = state
         self.starter = None
         self.winner = None
+        self.move_count = 0
 
     @staticmethod
     def dice_roll():
@@ -117,6 +118,7 @@ class Game:
                 self.state.player_to_wait, self.state.player_to_move
 
         self.find_winner()
+        self.move_count = move_count
         Logger.log(f'Game finished after {move_count} moves.\n', self.state.verbose)
         Logger.log(f'The winner is {self.winner}!!!', self.state.verbose)
         self.state.board.plot('game_finished.png', self.state.display_plot)

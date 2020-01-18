@@ -109,15 +109,20 @@ class Player:
             Logger.log(f'Neutral {territory} reinforced by {self}', state.verbose)
             territory.troops += 1
 
-    def fortify_territory(self, state):
-        territory, neighbor, count = self.agent.fortify_territory(state)
-        if territory.ruler != self:
-            Logger.log(f'{self} is not the ruler of {territory}!', state.verbose)
-            raise TerritoryNotOwnedByPlayerException()
+    def fortify(self, state):
+        # decide target territory
+        target = self.agent.select_fortify_target(state)
+        # decide source territory
+        source = self.agent.select_fortify_source(state, target)
+        if target.ruler != self:
+            Logger.log(f'Cannot fortify enemy {target}!', state.verbose)
+            raise CannotFortifyTerritoryException()
         else:
-            Logger.log(f'{self} fortifies {territory} from {neighbor} with {count} troops', state.verbose)
-            territory.troops += count
-            neighbor.troops -= count
+            # decide fortify count
+            fortify_count = self.agent.select_fortify_count(state, source)
+            Logger.log(f'{self} fortifies {target} from {source} with {fortify_count} troops', state.verbose)
+            target.troops += fortify_count
+            source.troops -= fortify_count
 
     # return the number of troops (1 or 2) committed to defend against an attack
     def defend_territory(self, state, attacked_territory):
@@ -223,4 +228,4 @@ class Player:
         # check if player can fortify
         target_territories = state.board.territories_to_fortify_to(self)
         if target_territories and self.wants_to_fortify(state):
-            self.fortify_territory(state)
+            self.fortify(state)

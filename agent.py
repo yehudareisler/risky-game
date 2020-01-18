@@ -25,11 +25,6 @@ class Agent(ABC):
     def wants_to_attack(self, state):
         pass
 
-    # return: boolean, whether the agent wants to fortify or not
-    # abstract method
-    def wants_to_fortify(self, state):
-        pass
-
     # return: territory, attack source
     # abstract method
     def select_attack_source(self, state):
@@ -43,4 +38,24 @@ class Agent(ABC):
     # return: integer, troops involved in attack
     # abstract method
     def select_attack_count(self, state, source):
+        pass
+
+    # return: boolean, whether the agent wants to fortify or not
+    # abstract method
+    def wants_to_fortify(self, state):
+        pass
+
+    # return: territory, fortify source
+    # abstract method
+    def select_fortify_source(self, state, target):
+        pass
+
+    # return: territory, fortify target
+    # abstract method
+    def select_fortify_target(self, state):
+        pass
+
+    # return: integer, troops involved in fortification
+    # abstract method
+    def select_fortify_count(self, state, source):
         pass
