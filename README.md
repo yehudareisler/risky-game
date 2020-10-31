@@ -1,4 +1,4 @@
-# Reinforcement learning applied to Risk
+# Simulating Risk
 
 Separated game logic into separate classes:
 
