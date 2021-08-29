@@ -146,13 +146,15 @@ class Game:
         else:
             self.winner = self.state.players[1]
 
+    # def plot(self, name):
+    #     if not self.folder:
+    #         folders = {name for name in os.listdir(".") if os.path.isdir(name)}
+    #         for i in itertools.count():
+    #             folder_name = f"game_{i}"
+    #             if folder_name not in folders:
+    #                 break
+    #         self.folder = os.getcwd() + "/" + folder_name
+    #         Path(self.folder).mkdir(parents=True, exist_ok=True)
+    #     self.state.board.plot(self.folder + "/" + name + ".png", self.state.display_plot, name)
     def plot(self, name):
-        if not self.folder:
-            folders = {name for name in os.listdir(".") if os.path.isdir(name)}
-            for i in itertools.count():
-                folder_name = f"game_{i}"
-                if folder_name not in folders:
-                    break
-            self.folder = os.getcwd() + "/" + folder_name
-            Path(self.folder).mkdir(parents=True, exist_ok=True)
-        self.state.board.plot(self.folder + "/" + name + ".png", self.state.display_plot, name)
+        self.state.board.plot(self.state.display_plot, name)

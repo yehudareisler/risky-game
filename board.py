@@ -34,7 +34,7 @@ class Board:
 
         return representation
 
-    def plot(self, plot_file_name, verbose, name):
+    def plot(self, verbose, name):
         if verbose:
             # init graph
             g = nx.Graph()

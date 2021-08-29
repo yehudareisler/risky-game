@@ -7,6 +7,7 @@ from human_agent import HumanAgent
 from pile import Pile
 from player import Player
 from random_agent import RandomAgent
+from passive_agent import PassiveAgent
 from state import State
 
 
@@ -14,8 +15,8 @@ def main():
     board = Board.from_config_file('board.cfg')
     pile = Pile.from_config_file('pile.cfg')
     players = [
-        Player('Bot_1', RandomAgent()),
-        Player('Bot_2', RandomAgent())
+        Player('Random', PassiveAgent()),
+        Player('Passive', PassiveAgent())
     ]
     state = State(board, players, pile, True, True)
     game = Game(state)
