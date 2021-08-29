@@ -134,3 +134,10 @@ dmypy.json
 # Generated graphs
 after_*
 game_finished.png
+
+#.pyc
+*.pyc
+
+#pycharm stuff
+.idea/
+__pycache__/

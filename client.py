@@ -1,4 +1,5 @@
 import copy
+from sys import argv
 
 from game import Game
 from board import Board
@@ -20,6 +21,7 @@ def main():
     game = Game(state)
     game.execute_setup()
     game.play_game()
+    board.plotly_display.disp()
 
 
 def test():
@@ -46,9 +48,16 @@ def test():
         if game.starter == game.winner:
             starter_winner_count += 1
 
-    print(f'Percentage of games won by starter: {starter_winner_count/game_count*100}%')
-    print(f'Average number of total moves in a game: {total_move_count/game_count}')
+    print(f'Percentage of games won by starter: {starter_winner_count / game_count * 100}%')
+    print(f'Average number of total moves in a game: {total_move_count / game_count}')
 
 
 if __name__ == '__main__':
-    test()
+    if len(argv) != 2:
+        print("ERR: wrong number of arguments. Enter exactly one argument - main or test")
+    if argv[1] == "main":
+        main()
+    elif argv[1] == "test":
+        test()
+    else:
+        print("ERR: bad argument. Enter exactly one argument - 'main' or 'test'")

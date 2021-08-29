@@ -4,6 +4,7 @@ from networkx.drawing.nx_agraph import to_agraph
 from continent import Continent
 from path import Path
 from territory import Territory
+from display import Display
 
 
 class Board:
@@ -14,6 +15,7 @@ class Board:
         self.continents = continents
         # colors indicating occupation: player0, player1, neutrals (blue, red, gray)
         self.territory_colors = ['#283493', '#932834', '#616161']
+        self.plotly_display = Display()
 
     def __str__(self):
         representation = ''
@@ -32,32 +34,35 @@ class Board:
 
         return representation
 
-    def plot(self, plot_file_name, verbose):
+    def plot(self, plot_file_name, verbose, name):
         if verbose:
             # init graph
-            G = nx.Graph()
+            g = nx.Graph()
 
             # add nodes
             for territory in self.territories.values():
                 label = f'{territory.name}\nt = {territory.troops}\n{territory.ruler}'
                 # label = f'{territory.name}\nt = {territory.troops}, ({territory.board_pos})'
-                G.add_node(territory, label=label, fontsize=30,
+                g.add_node(territory, label=label, fontsize=30,
                            pos=territory.board_pos, fixedsize=True,
                            height=territory.size_on_board, width=territory.size_on_board,
                            shape='oval', fontcolor='#FFFFFF', penwidth=35,
-                           fillcolor=territory.fill_color, color=territory.border_color,  style='filled')
+                           fillcolor=territory.fill_color, color=territory.border_color,
+                           style='filled')
 
             # add edges
             for path in self.paths:
-                G.add_edge(path.from_territory, path.to_territory, penwidth=5)
+                g.add_edge(path.from_territory, path.to_territory, penwidth=5)
 
+            self.plotly_display.add_graph(g,name)
+            # self.plotly_display.disp()
             # convert to graphviz agraph
-            A = to_agraph(G)
-            A.graph_attr.update(splines='true', bgcolor='#BDBDBD')
-            A.layout()
+            # a = to_agraph(g)
+            # a.graph_attr.update(splines='true', bgcolor='#BDBDBD')
+            # a.layout()
 
             # draw and export
-            A.draw(plot_file_name)
+            # a.draw(plot_file_name)
 
     @staticmethod
     def from_config_file(path_to_file):

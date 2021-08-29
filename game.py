@@ -1,6 +1,9 @@
 import random
 from card import Card, CardType
 from logger import Logger
+import os
+import itertools
+from pathlib import Path
 
 
 class Game:
@@ -10,6 +13,7 @@ class Game:
         self.starter = None
         self.winner = None
         self.move_count = 0
+        self.folder = None
 
     @staticmethod
     def dice_roll():
@@ -28,20 +32,22 @@ class Game:
             territory.ruler = self.state.players[0]
             territory.troops = 1
             territory.fill_color = self.state.board.territory_colors[0]
-            Logger.log(f'Territory {territory} taken by {self.state.players[0]}', self.state.verbose)
+            Logger.log(f'Territory {territory} taken by {self.state.players[0]}',
+                       self.state.verbose)
         for card in player1_cards:
             territory = self.state.board.territories[card.territory_name]
             territory.ruler = self.state.players[1]
             territory.troops = 1
             territory.fill_color = self.state.board.territory_colors[1]
-            Logger.log(f'Territory {territory} taken by {self.state.players[1]}', self.state.verbose)
+            Logger.log(f'Territory {territory} taken by {self.state.players[1]}',
+                       self.state.verbose)
         for card in neutral_cards:
             territory = self.state.board.territories[card.territory_name]
             territory.troops = 1
             territory.fill_color = self.state.board.territory_colors[2]
             Logger.log(f'Territory {territory} taken by neutrals', self.state.verbose)
 
-        self.state.board.plot('after_init_step4.png', self.state.display_plot)
+        self.plot('after_init_step4')
 
     def reinforce_initial_territories(self):
         # Players have 22 troops remaining each.
@@ -53,7 +59,7 @@ class Game:
                 self.state.player_to_move, self.state.player_to_wait = \
                     self.state.player_to_wait, self.state.player_to_move
 
-        self.state.board.plot('after_init_step5.png', self.state.display_plot)
+        self.plot('after_init_step5')
 
     def execute_setup(self):
         Logger.log("Initializing setup phase...", self.state.verbose)
@@ -82,7 +88,8 @@ class Game:
         #   Both you and your opponent choose a different pile. The remaining pile is neutral. "
         #
         # 4)
-        # " Place one of your Infantry onto each of the 14 territories shown on the RISK cards in your pile.
+        # " Place one of your Infantry onto each of the 14 territories shown on the RISK cards in
+        # your pile.
         #   Your opponent does the same.
         #   Then place one “neutral” Infantry onto each of the remaining 14 “neutral” territories. "
         self.assign_cards()
@@ -111,8 +118,8 @@ class Game:
             # take turn
             self.state.player_to_move.take_turn(self.state)
             move_count += 1
-            if move_count % 10 == 0:
-                self.state.board.plot(f'after_turn_{move_count}.png', self.state.display_plot)
+            # if move_count % 10 == 0:
+            self.plot(f'after_turn_{move_count}')
             # change players' state
             self.state.player_to_move, self.state.player_to_wait = \
                 self.state.player_to_wait, self.state.player_to_move
@@ -121,10 +128,11 @@ class Game:
         self.move_count = move_count
         Logger.log(f'Game finished after {move_count} moves.\n', self.state.verbose)
         Logger.log(f'The winner is {self.winner}!!!', self.state.verbose)
-        self.state.board.plot('game_finished.png', self.state.display_plot)
+        self.plot('game_finished')
 
     def reorder_players_by_next_to_move(self, next_player_index):
-        self.state.players = self.state.players[next_player_index:] + self.state.players[:next_player_index]
+        self.state.players = self.state.players[next_player_index:] + self.state.players[
+                                                                      :next_player_index]
 
     def over(self):
         player0_territories = self.state.board.occupied_territories(self.state.players[0])
@@ -137,3 +145,14 @@ class Game:
             self.winner = self.state.players[0]
         else:
             self.winner = self.state.players[1]
+
+    def plot(self, name):
+        if not self.folder:
+            folders = {name for name in os.listdir(".") if os.path.isdir(name)}
+            for i in itertools.count():
+                folder_name = f"game_{i}"
+                if folder_name not in folders:
+                    break
+            self.folder = os.getcwd() + "/" + folder_name
+            Path(self.folder).mkdir(parents=True, exist_ok=True)
+        self.state.board.plot(self.folder + "/" + name + ".png", self.state.display_plot, name)
