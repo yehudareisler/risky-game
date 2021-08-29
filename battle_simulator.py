@@ -57,11 +57,12 @@ def ascii_histogram(seq) -> None:
     for k in sorted(counted):
         # print(f'{k}, {counted[k]} {"+" * counted[k]}')
         print(f'{k}, {counted[k]}')
+    print(1000-(sum(k[0]*counted[k] for k in sorted(counted))/10000))
 
 
 def possibilities(attackers, defenders, iterations):
     ascii_histogram(war(attackers, defenders) for i in range(iterations))
 
 
-possibilities(attackers=3, defenders=1, iterations=100000)
+possibilities(attackers=1000, defenders=20, iterations=10000)
 # ascii_histogram(die() for i in range(1000000))
