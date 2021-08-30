@@ -12,7 +12,8 @@ class Continent:
         self.territories.append(territory)
 
     def __str__(self):
-        return f'{self.name} with an army bonus of {self.army_bonus} and territories:\n' + str(self.territories) + '\n'
+        return f'{self.name} with an army bonus of {self.army_bonus} and territories:\n' + str(
+            self.territories) + '\n'
 
     def get_ruler(self):
         rulers = set()
