@@ -53,7 +53,7 @@ class Game:
             territory.fill_color = self.state.board.territory_colors[2]
             Logger.log(f'Territory {territory} taken by neutrals', self.state.verbose)
 
-        self.plot('after_init_step4')
+        self.plot('after randomly giving out countries')
 
     def reinforce_initial_territories(self):
         # Players have 22 troops remaining each.
@@ -66,7 +66,7 @@ class Game:
                 self.state.player_to_move, self.state.player_to_wait = \
                     self.state.player_to_wait, self.state.player_to_move
 
-        self.plot('after_init_step5')
+        self.plot('after_reinforcing at beginning of game')
 
     def execute_setup(self):
         Logger.log("Initializing setup phase...", self.state.verbose)
