@@ -25,13 +25,20 @@ class FirstAgent(Agent):
 
     # overriding abstract method
     def wants_to_attack(self, state):
-        return True
+        for territory in state.board.territories_to_attack_from(state.player_to_move):
+            if territory.ruler == state.player_to_move and territory.troops > 3 and \
+                    territory.enemy_neighbors():
+                return True
+        return False
 
     # overriding abstract method
     def select_attack_source(self, state):
         territories = list(state.board.territories_to_attack_from(state.player_to_move))
-        territory = random.choice(territories)
-        return territory
+        for territory in territories:
+            if territory.troops > 3 and territory.enemy_neighbors():
+                return territory
+        else:
+            return random.choice(territories)
 
     # overriding abstract method
     def select_attack_target(self, state, source):

@@ -8,12 +8,13 @@ from pathlib import Path
 
 class Game:
 
-    def __init__(self, state):
+    def __init__(self, state, with_neutrals=True):
         self.state = state
         self.starter = None
         self.winner = None
         self.move_count = 0
         self.folder = None
+        self.with_neutrals = with_neutrals
 
     @staticmethod
     def dice_roll():
@@ -24,9 +25,14 @@ class Game:
         self.state.pile.remove_card_with_index(0)
         # cheating until better implementation
         self.state.pile.shuffle()
-        player0_cards = self.state.pile[:14]
-        player1_cards = self.state.pile[14:28]
-        neutral_cards = self.state.pile[28:42]
+        if self.with_neutrals:
+            player0_cards = self.state.pile[:14]
+            player1_cards = self.state.pile[14:28]
+            neutral_cards = self.state.pile[28:42]
+        else:
+            player0_cards = self.state.pile[:21]
+            player1_cards = self.state.pile[21:42]
+            neutral_cards = []
         for card in player0_cards:
             territory = self.state.board.territories[card.territory_name]
             territory.ruler = self.state.players[0]
@@ -55,7 +61,8 @@ class Game:
             for i in range(2):
                 self.state.players[i].reinforce_owned_territory(self.state)
                 self.state.players[i].reinforce_owned_territory(self.state)
-                self.state.players[i].reinforce_neutral_territory(self.state)
+                if self.with_neutrals:
+                    self.state.players[i].reinforce_neutral_territory(self.state)
                 self.state.player_to_move, self.state.player_to_wait = \
                     self.state.player_to_wait, self.state.player_to_move
 
