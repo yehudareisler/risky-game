@@ -15,6 +15,14 @@ from passive_agent import PassiveAgent
 from attack_above_three_agent import AttackAboveThreeAgent
 from reinforce_continent_agent import ReinforceContinentAttackAgent
 from committing_reinforce_continent_agent import CommittingReinforceContinentAgent
+from  continent_by_ratio_agent import RatioAgent
+
+passive_bt = ("passive", PassiveAgent)
+random_bt = ("random", RandomAgent)
+attack_above_three_bt = ("attck_above_three", AttackAboveThreeAgent)
+reinforce_continent_bt = ("continent_reinforcer", ReinforceContinentAttackAgent)
+committing_reinforce_continent_bt = ("committer", CommittingReinforceContinentAgent)
+ratio_bt = ("ratio", RatioAgent)
 
 
 def main():
@@ -125,16 +133,10 @@ def testbots(bots, iterations):
               f'{round(bot1_win_count / game_count * 100, 2)}%')
         print(f'Percentage of games won by {bot_2[0]}: '
               f'{round(100 - (bot1_win_count / game_count * 100), 2)}%')
-        print(f'Average number of total moves in a game: {total_move_count / game_count}')
+        print(f'Average number of total moves in a game: {round(total_move_count / game_count,2)}')
 
 
 if __name__ == '__main__':
-    passive_bt = ("passive", PassiveAgent)
-    random_bt = ("random", RandomAgent)
-    attack_above_three_bt = ("attck_above_three", AttackAboveThreeAgent)
-    reinforce_continent_bt = ("continent_reinforcer", ReinforceContinentAttackAgent)
-    committing_reinforce_continent_bt = ("committer", CommittingReinforceContinentAgent)
-
     if len(argv) != 2:
         print("ERR: wrong number of arguments. Enter exactly one argument - main or test")
     if argv[1] == "main":
@@ -145,6 +147,6 @@ if __name__ == '__main__':
         test2bots(PassiveAgent(), RandomAgent())
     elif argv[1] == "testbots":
         testbots([attack_above_three_bt, random_bt, reinforce_continent_bt,
-                  committing_reinforce_continent_bt], iterations=500)
+                  committing_reinforce_continent_bt, ratio_bt], iterations=10)
     else:
         print("ERR: bad argument. Enter exactly one argument - 'main' or 'test'")
