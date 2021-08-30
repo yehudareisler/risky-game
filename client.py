@@ -14,6 +14,7 @@ from random_agent import RandomAgent
 from passive_agent import PassiveAgent
 from attack_above_three_agent import AttackAboveThreeAgent
 from reinforce_continent_agent import ReinforceContinentAttackAgent
+from committing_reinforce_continent_agent import CommittingReinforceContinentAgent
 
 
 def main():
@@ -93,6 +94,7 @@ def testbots(bots, iterations):
     :param bots: a list of ("name", bot) tuples
     run 1000 games between every pair, and print win percentages.
     """
+    print("pitting the following agents against each other:", [name for name, _ in bots])
     board = Board.from_config_file('board.cfg')
     pile = Pile.from_config_file('pile.cfg')
     for bot_1, bot_2 in itertools.combinations(bots, 2):
@@ -131,7 +133,7 @@ if __name__ == '__main__':
     random_bt = ("random", RandomAgent)
     attack_above_three_bt = ("attck_above_three", AttackAboveThreeAgent)
     reinforce_continent_bt = ("continent_reinforcer", ReinforceContinentAttackAgent)
-
+    committing_reinforce_continent_bt = ("committer", CommittingReinforceContinentAgent)
 
     if len(argv) != 2:
         print("ERR: wrong number of arguments. Enter exactly one argument - main or test")
@@ -142,6 +144,7 @@ if __name__ == '__main__':
     elif argv[1] == "test2bots":
         test2bots(PassiveAgent(), RandomAgent())
     elif argv[1] == "testbots":
-        testbots([attack_above_three_bt, random_bt, reinforce_continent_bt], iterations=200)
+        testbots([attack_above_three_bt, random_bt, reinforce_continent_bt,
+                  committing_reinforce_continent_bt], iterations=500)
     else:
         print("ERR: bad argument. Enter exactly one argument - 'main' or 'test'")
