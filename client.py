@@ -4,21 +4,24 @@ from sys import argv
 
 from game import Game
 from board import Board
-# from human_agent import HumanAgent
+
 from pile import Pile
 from player import Player
+from state import State
+
+# from human_agent import HumanAgent
 from random_agent import RandomAgent
 from passive_agent import PassiveAgent
-from first_agent import FirstAgent
-from state import State
+from attack_above_three_agent import AttackAboveThreeAgent
+from reinforce_continent_agent import ReinforceContinentAttackAgent
 
 
 def main():
     board = Board.from_config_file('board.cfg')
     pile = Pile.from_config_file('pile.cfg')
     players = [
-        Player('First', FirstAgent()),
-        Player('Passive', PassiveAgent())
+        Player('attack_above_three', AttackAboveThreeAgent()),
+        Player('Reinforcer', ReinforceContinentAttackAgent())
     ]
     state = State(board, players, pile, True, True)
     game = Game(state, with_neutrals=False)
@@ -85,7 +88,7 @@ def test2bots(bot1, bot2):
     print(f'Average number of total moves in a game: {total_move_count / game_count}')
 
 
-def testbots(bots):
+def testbots(bots, iterations):
     """
     :param bots: a list of ("name", bot) tuples
     run 1000 games between every pair, and print win percentages.
@@ -94,10 +97,10 @@ def testbots(bots):
     pile = Pile.from_config_file('pile.cfg')
     for bot_1, bot_2 in itertools.combinations(bots, 2):
         players = [
-            Player(*bot_1),
-            Player(*bot_2)
+            Player(bot_1[0], bot_1[1]()),
+            Player(bot_2[0], bot_2[1]())
         ]
-        game_count = 500
+        game_count = iterations
         bot1_win_count = 0
         total_move_count = 0
 
@@ -124,9 +127,11 @@ def testbots(bots):
 
 
 if __name__ == '__main__':
-    passive_bt = ("passive", PassiveAgent())
-    random_bt = ("random", RandomAgent())
-    first_bt = ("first", FirstAgent())
+    passive_bt = ("passive", PassiveAgent)
+    random_bt = ("random", RandomAgent)
+    attack_above_three_bt = ("attck_above_three", AttackAboveThreeAgent)
+    reinforce_continent_bt = ("continent_reinforcer", ReinforceContinentAttackAgent)
+
 
     if len(argv) != 2:
         print("ERR: wrong number of arguments. Enter exactly one argument - main or test")
@@ -137,6 +142,6 @@ if __name__ == '__main__':
     elif argv[1] == "test2bots":
         test2bots(PassiveAgent(), RandomAgent())
     elif argv[1] == "testbots":
-        testbots([first_bt, random_bt])
+        testbots([attack_above_three_bt, random_bt, reinforce_continent_bt], iterations=200)
     else:
         print("ERR: bad argument. Enter exactly one argument - 'main' or 'test'")

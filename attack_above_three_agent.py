@@ -3,7 +3,10 @@ import random
 from agent import Agent
 
 
-class FirstAgent(Agent):
+class AttackAboveThreeAgent(Agent):
+    """
+    a random agent that attacks when it has more than three soldiers in a territory
+    """
     # overriding abstract method
     def reinforce_owned_territory(self, state):
         territories = state.board.border_territories(state.player_to_move)
@@ -26,8 +29,7 @@ class FirstAgent(Agent):
     # overriding abstract method
     def wants_to_attack(self, state):
         for territory in state.board.territories_to_attack_from(state.player_to_move):
-            if territory.ruler == state.player_to_move and territory.troops > 3 and \
-                    territory.enemy_neighbors():
+            if territory.troops > 3:
                 return True
         return False
 
@@ -35,14 +37,14 @@ class FirstAgent(Agent):
     def select_attack_source(self, state):
         territories = list(state.board.territories_to_attack_from(state.player_to_move))
         for territory in territories:
-            if territory.troops > 3 and territory.enemy_neighbors():
+            if territory.troops > 3:
                 return territory
         else:
             return random.choice(territories)
 
     # overriding abstract method
     def select_attack_target(self, state, source):
-        territories = list(source.enemy_neighbors())
+        territories = source.enemy_neighbors()
         territory = random.choice(territories)
         return territory
 
