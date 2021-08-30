@@ -225,7 +225,7 @@ class Player:
     def take_turn(self, state):
         self.receive_troops(state)
         self.place_new_troops(state)
-
+        state.board.plot(state.display_plot,"after placing troops")
         # check if player can attack
         source_territories = state.board.territories_to_attack_from(self)
         while source_territories and self.wants_to_attack(state):
