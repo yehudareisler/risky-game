@@ -16,5 +16,7 @@ class BoardUtils:
                 player_units += territory.troops
             else:
                 enemy_units += territory.troops
-        print(player_units,enemy_units)
-        return player_units / enemy_units if enemy_units != 0 else float("inf")
+        # print(player_units,enemy_units)
+        ret_val = player_units / enemy_units if enemy_units != 0 else float("inf")
+        # print("ratio:", ret_val)
+        return ret_val

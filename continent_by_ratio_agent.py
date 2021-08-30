@@ -4,6 +4,11 @@ from agent import Agent
 from board_utilities import BoardUtils
 
 
+# upper limit of preferred ration of friendly soldiers to enemy soldiers
+upper = 2
+# lower limit of preferred ration of friendly soldiers to enemy soldiers
+lower = 0.5
+
 class RatioAgent(Agent):
     """
     builds on commiter agent.
@@ -16,25 +21,40 @@ class RatioAgent(Agent):
         continent_scores = dict()
         for name, continent in state.board.continents.items():
             ratio = BoardUtils.get_continent_ratio(continent, state.player_to_move)
-            if 0.6 <= ratio <= 1.3:
+            if lower <= ratio <= upper:
                 self.continent = continent
                 return
             continent_scores[continent] = ratio
-        self.continent = min(state.board.continents, key=lambda continent: min(
-            abs(continent_scores[continent] - 0.6), abs(continent_scores[continent] - 1.3)))
+        min_val = float("inf")
+        min_continents = []
+        for continent in state.board.continents.values():
+            val = min(abs(continent_scores[continent] - lower),
+                      abs(continent_scores[continent] - upper))
+            if val == min_val:
+                min_continents.append(continent)
+            if val < min_val:
+                min_val = val
+                min_continents = []
+        if min_val == 0 or not min_continents:
+            self.continent = random.choice(list(state.board.continents.values()))
+            return
+        self.continent = random.choice(min_continents)
 
     # overriding abstract method
     def reinforce_owned_territory(self, state):
         territories = set(state.board.border_territories(state.player_to_move))
+
         if not self.continent:
             self.get_new_continent(state)
-        while True:
-            border_territories_in_continent = territories.intersection(self.continent.territories)
-            if not border_territories_in_continent:
-                self.get_new_continent(state)
-            else:
-                territory = border_territories_in_continent.pop()
-                return territory
+        border_territories_in_continent = territories.intersection(self.continent.territories)
+        if not border_territories_in_continent:
+            self.get_new_continent(state)
+            border_territories_in_continent = territories.intersection(
+                self.continent.territories)
+        if border_territories_in_continent:
+            territory = border_territories_in_continent.pop()
+            return territory
+        return random.choice(list(territories))
 
     # overriding abstract method
     def reinforce_neutral_territory(self, state):
@@ -77,7 +97,9 @@ class RatioAgent(Agent):
 
     # overriding abstract method
     def wants_to_fortify(self, state):
-        return random.random() < 0.9
+        territories = list(state.board.territories_to_fortify_to(state.player_to_move))
+        fortifiable_in_continent = set(territories).intersection(self.continent.territories)
+        return bool(fortifiable_in_continent)
 
     # overriding abstract method
     def select_fortify_source(self, state, target):
@@ -88,13 +110,9 @@ class RatioAgent(Agent):
     # overriding abstract method
     def select_fortify_target(self, state):
         territories = list(state.board.territories_to_fortify_to(state.player_to_move))
-        while True:
-            fortifiable_in_continent = set(territories).intersection(self.continent.territories)
-            if not fortifiable_in_continent:
-                self.get_new_continent(state)
-                continue
-            target = random.choice(list(fortifiable_in_continent))
-            return target
+        fortifiable_in_continent = set(territories).intersection(self.continent.territories)
+        target = random.choice(list(fortifiable_in_continent))
+        return target
 
     # overriding abstract method
     def select_fortify_count(self, state, source):

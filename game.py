@@ -126,7 +126,7 @@ class Game:
             self.state.player_to_move.take_turn(self.state)
             move_count += 1
             # if move_count % 10 == 0:
-            self.plot(f'after_turn_{move_count}')
+            self.plot(f'after_turn_{move_count}, last moved {self.state.player_to_move.name}')
             # change players' state
             self.state.player_to_move, self.state.player_to_wait = \
                 self.state.player_to_wait, self.state.player_to_move
