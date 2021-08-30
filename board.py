@@ -15,7 +15,7 @@ class Board:
         self.continents = continents
         # colors indicating occupation: player0, player1, neutrals (blue, red, gray)
         self.territory_colors = ['#283493', '#932834', '#616161']
-        self.plotly_display = Display()
+        self.plotly_display = None
 
     def __str__(self):
         representation = ''
@@ -34,8 +34,10 @@ class Board:
 
         return representation
 
-    def plot(self, plot_file_name, verbose, name):
+    def plot(self, verbose, name):
         if verbose:
+            if not self.plotly_display:
+                self.plotly_display = Display()
             # init graph
             g = nx.Graph()
 

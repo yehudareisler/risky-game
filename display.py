@@ -19,12 +19,14 @@ class Display:
     def __init__(self):
         self.graphs = []
         self.app = dash.Dash(__name__)
+        self.names = []
 
     def add_graph(self, graph, name):
         self.graphs.append(graph)
         new_trace = self.make_trace_from_graph(graph)
         if len(self.graphs) != 1:
             self.fig.add_trace(new_trace)
+        self.names.append(name)
 
     def make_first_display(self, g):
         """
@@ -95,15 +97,16 @@ class Display:
                 method="update",
                 args=[{"visible": [True] + [False] * (len(self.fig.data) - 1)},
                       {"title": "Slider switched to step: " + str(i)}],  # layout attribute
+                label=self.names[i-1],
             )
             step["args"][0]["visible"][i] = True  # Toggle i'th trace to "visible"
             steps.append(step)
 
         sliders = [dict(
             active=10,
-            currentvalue={"prefix": "Frequency: "},
-            pad={"t": 50},
-            steps=steps
+            # currentvalue={"prefix": "Frequency: "},
+            # pad={"t": 50},
+            steps=steps,
         )]
 
         self.fig.update_layout(sliders=sliders)

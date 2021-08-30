@@ -229,3 +229,5 @@ class Player:
         target_territories = state.board.territories_to_fortify_to(self)
         if target_territories and self.wants_to_fortify(state):
             self.fortify(state)
+
+
