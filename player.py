@@ -172,7 +172,7 @@ class Player:
             target_territory.fill_color = source_territory.fill_color
             state.attack_successful = True
 
-    def receive_troops(self, state):
+    def receive_troops(self, state, use_cards=False):
         # calculate occupied territory bonus
         occupied_territories = state.board.occupied_territories(self)
         territory_bonus = max(len(occupied_territories), 9) // 3
@@ -185,7 +185,7 @@ class Player:
 
         # calculate card bonus
         card_bonus = 0
-        if self.trades_in_cards(state):
+        if use_cards and self.trades_in_cards(state):
             card_bonus += state.get_card_bonus()
 
         self.available_troops = territory_bonus + continent_bonus + card_bonus

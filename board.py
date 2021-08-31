@@ -57,7 +57,7 @@ class Board:
         for path in self.paths:
             g.add_edge(path.from_territory, path.to_territory, penwidth=5)
 
-        self.plotly_display.add_graph(g,name)
+        self.plotly_display.add_graph(g, name)
         # self.plotly_display.disp()
         # convert to graphviz agraph
         # a = to_agraph(g)
@@ -163,3 +163,11 @@ class Board:
                 source_territories.add(territory)
 
         return source_territories
+
+    def start_simulation(self):
+        for territory in self.territories:
+            territory.start_simulation()
+
+    def end_simulation(self):
+        for territory in self.territories:
+            territory.end_simulation()
