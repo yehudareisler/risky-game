@@ -172,11 +172,12 @@ class Player:
             target_territory.fill_color = source_territory.fill_color
             state.attack_successful = True
 
-    def receive_troops(self, state, use_cards=False):
+    def number_of_troops_to_reinforce_with(self, state, use_cards=False):
         # calculate occupied territory bonus
         occupied_territories = state.board.occupied_territories(self)
         territory_bonus = max(len(occupied_territories), 9) // 3
-
+        if not occupied_territories:
+            territory_bonus = 0
         # calculate occupied continent bonus
         occupied_continents = state.board.occupied_continents(self)
         continent_bonus = 0
@@ -188,7 +189,12 @@ class Player:
         if use_cards and self.trades_in_cards(state):
             card_bonus += state.get_card_bonus()
 
-        self.available_troops = territory_bonus + continent_bonus + card_bonus
+        return territory_bonus + continent_bonus + card_bonus, territory_bonus, continent_bonus, \
+               card_bonus
+
+    def receive_troops(self, state):
+        self.available_troops, territory_bonus, continent_bonus, card_bonus = \
+            self.number_of_troops_to_reinforce_with(state)
         Logger.log(f'{self.name} receives {self.available_troops} troops ( '
                    f'{territory_bonus}/{continent_bonus}/{card_bonus})', state.verbose)
 
@@ -225,7 +231,7 @@ class Player:
     def take_turn(self, state):
         self.receive_troops(state)
         self.place_new_troops(state)
-        state.board.plot(state.display_plot,"after placing troops")
+        state.board.plot(state.display_plot, "after placing troops")
         # check if player can attack
         source_territories = state.board.territories_to_attack_from(self)
         while source_territories and self.wants_to_attack(state):

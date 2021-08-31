@@ -16,6 +16,7 @@ from attack_above_three_agent import AttackAboveThreeAgent
 from reinforce_continent_agent import ReinforceContinentAttackAgent
 from committing_reinforce_continent_agent import CommittingReinforceContinentAgent
 from continent_by_ratio_agent import RatioAgent
+from planner_agent import PlannerAgent
 
 passive_bt = ("passive", PassiveAgent)
 random_bt = ("random", RandomAgent)
@@ -23,6 +24,7 @@ attack_above_three_bt = ("attck_above_three", AttackAboveThreeAgent)
 reinforce_continent_bt = ("continent_reinforcer", ReinforceContinentAttackAgent)
 committing_reinforce_continent_bt = ("committer", CommittingReinforceContinentAgent)
 ratio_bt = ("ratio", RatioAgent)
+planner_bt = ("planner", PlannerAgent)
 
 
 def main(bot_1, bot_2):
@@ -84,12 +86,13 @@ def test2bots(bot_1, bot_2, iterations):
         new_pile = copy.deepcopy(pile)
         new_players = copy.deepcopy(players)
         player1 = new_players[0]
-        state = State(new_board, new_players, new_pile, False, False)
+        state = State(new_board, new_players, new_pile, verbose=False, display_plot=False)
         game = Game(state, with_neutrals=False)
         game.execute_setup()
         game.play_game()
-        if i % 100 == 0:
-            print(f'At game #{i:04}')
+        # if i % 5 == 0:
+        #     print(f'At game #{i:04}')
+        print(f'At game #{i:04}')
         total_move_count += game.move_count
         if player1 == game.winner:
             player1_winner_count += 1
@@ -144,13 +147,15 @@ if __name__ == '__main__':
     if len(argv) != 2:
         print("ERR: wrong number of arguments. Enter exactly one argument - main or test")
     if argv[1] == "main":
-        main(ratio_bt,committing_reinforce_continent_bt)
+        main(planner_bt, random_bt)
     elif argv[1] == "test":
         test()
     elif argv[1] == "test2bots":
-        test2bots(ratio_bt, committing_reinforce_continent_bt, iterations=1000)
+        test2bots(committing_reinforce_continent_bt, planner_bt, iterations=200)
     elif argv[1] == "testbots":
         testbots([attack_above_three_bt, random_bt, reinforce_continent_bt,
-                  committing_reinforce_continent_bt, ratio_bt], iterations=300)
+                  committing_reinforce_continent_bt, ratio_bt, planner_bt], iterations=300)
     else:
-        print("ERR: bad argument. Enter exactly one argument - 'main' or 'test'")
+        print(
+            "ERR: bad argument. Enter exactly one argument - 'main' or 'test' or 'test2bots' or "
+            "'testbots'")

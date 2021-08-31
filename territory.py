@@ -25,7 +25,12 @@ class Territory:
         return not self.ruler
 
     def is_border_territory(self):
+        i = 0
         for neighbor in self.neighbors:
+            i+=1
+            if i>1000:
+                print("help!")
+                raise Exception(f"neighbors:{self.neighbors}")
             if neighbor.ruler != self.ruler:
                 return True
         return False

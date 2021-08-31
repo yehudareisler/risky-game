@@ -16,6 +16,7 @@ class Board:
         # colors indicating occupation: player0, player1, neutrals (blue, red, gray)
         self.territory_colors = ['#283493', '#932834', '#616161']
         self.plotly_display = None
+        self.in_simulation = False
 
     def __str__(self):
         representation = ''
@@ -35,7 +36,7 @@ class Board:
         return representation
 
     def plot(self, display_plot, name):
-        if not display_plot:
+        if not display_plot or self.in_simulation:
             return
         if not self.plotly_display:
             self.plotly_display = Display()
@@ -112,7 +113,11 @@ class Board:
     def border_territories(self, reinforcing_player):
         border_territories = []
         occupied_territories = self.occupied_territories(reinforcing_player)
+        i = 0
         for territory in occupied_territories:
+            i+=1
+            if i>100:
+                raise Exception("occupied")
             if territory.is_border_territory():
                 border_territories.append(territory)
 
@@ -165,9 +170,11 @@ class Board:
         return source_territories
 
     def start_simulation(self):
-        for territory in self.territories:
+        self.in_simulation = True
+        for territory in self.territories.values():
             territory.start_simulation()
 
     def end_simulation(self):
-        for territory in self.territories:
+        self.in_simulation = False
+        for territory in self.territories.values():
             territory.end_simulation()
