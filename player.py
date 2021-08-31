@@ -22,13 +22,10 @@ class Player:
 
     # To simplify the implementation, all players must turn in a set as soon as they can.
     # Additionally, this rule:
-    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-    # # # # # # # # #
-    # If any of the 3 cards you trade in shows the picture of a territory you occupy, you receive
-    # 2 extra armies.)
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # If any of the 3 cards you trade in shows the picture of a territory you occupy, you receive 2 extra armies.)
     # You must place both those armies onto that particular territory.
-    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-    # # # # # # # # #
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # is no longer applied.
     # To be implemented if more complexity is wanted.
     def trades_in_cards(self, state):
@@ -55,8 +52,7 @@ class Player:
                         Logger.log(f'{self.name} trades in a wildcard combination', state.verbose)
                         return True
 
-                elif self.card_count[CardType.CAVALRY] > 0 and self.card_count[
-                    CardType.ARTILLERY] > 0:
+                elif self.card_count[CardType.CAVALRY] > 0 and self.card_count[CardType.ARTILLERY] > 0:
                     self.card_count[CardType.WILDCARD] -= 1
                     self.card_count[CardType.CAVALRY] -= 1
                     self.card_count[CardType.ARTILLERY] -= 1
@@ -124,8 +120,7 @@ class Player:
         else:
             # decide fortify count
             fortify_count = self.agent.select_fortify_count(state, source)
-            Logger.log(f'{self} fortifies {target} from {source} with {fortify_count} troops',
-                       state.verbose)
+            Logger.log(f'{self} fortifies {target} from {source} with {fortify_count} troops', state.verbose)
             target.troops += fortify_count
             source.troops -= fortify_count
 
@@ -136,22 +131,18 @@ class Player:
 
     # solves a battle situation
     def attack_territory(self, state, source_territory, target_territory, attacker_count):
-        attacker_dice_rolls = sorted([Game.dice_roll() for _ in range(min(attacker_count, 3))],
-                                     reverse=True)
+        attacker_dice_rolls = sorted([Game.dice_roll() for _ in range(attacker_count)], reverse=True)
 
         if target_territory.is_neutral():
             defender_count = state.player_to_wait.defend_territory(state, target_territory)
             Logger.log(f'Neutrals defend with {defender_count} troops', state.verbose)
         else:
             defender_count = target_territory.ruler.defend_territory(state, target_territory)
-            Logger.log(f'{target_territory.ruler} defends with {defender_count} troops',
-                       state.verbose)
-        defender_dice_rolls = sorted([Game.dice_roll() for _ in range((min(defender_count, 2)))],
-                                     reverse=True)
-        attacker_change = 0
+            Logger.log(f'{target_territory.ruler} defends with {defender_count} troops', state.verbose)
+        defender_dice_rolls = sorted([Game.dice_roll() for _ in range(defender_count)], reverse=True)
+
         if defender_dice_rolls[0] >= attacker_dice_rolls[0]:
             source_territory.troops -= 1
-            attacker_change -= 1
         else:
             target_territory.troops -= 1
 
@@ -159,7 +150,6 @@ class Player:
         if defender_count > 1 and attacker_count > 1:
             if defender_dice_rolls[1] >= attacker_dice_rolls[1]:
                 source_territory.troops -= 1
-                attacker_change -= 1
             else:
                 target_territory.troops -= 1
 
@@ -167,17 +157,15 @@ class Player:
         if target_territory.troops == 0:
             Logger.log(f'{target_territory} has been conquered by {self}', state.verbose)
             target_territory.ruler = self
-            target_territory.troops = (attacker_count + attacker_change)
-            source_territory.troops -= (attacker_count + attacker_change)
+            target_territory.troops = attacker_count
             target_territory.fill_color = source_territory.fill_color
             state.attack_successful = True
 
-    def number_of_troops_to_reinforce_with(self, state, use_cards=False):
+    def receive_troops(self, state):
         # calculate occupied territory bonus
         occupied_territories = state.board.occupied_territories(self)
-        territory_bonus = max(len(occupied_territories), 9) // 3
-        if not occupied_territories:
-            territory_bonus = 0
+        territory_bonus = max(len(occupied_territories), 9)//3
+
         # calculate occupied continent bonus
         occupied_continents = state.board.occupied_continents(self)
         continent_bonus = 0
@@ -186,15 +174,10 @@ class Player:
 
         # calculate card bonus
         card_bonus = 0
-        if use_cards and self.trades_in_cards(state):
+        if self.trades_in_cards(state):
             card_bonus += state.get_card_bonus()
 
-        return territory_bonus + continent_bonus + card_bonus, territory_bonus, continent_bonus, \
-               card_bonus
-
-    def receive_troops(self, state):
-        self.available_troops, territory_bonus, continent_bonus, card_bonus = \
-            self.number_of_troops_to_reinforce_with(state)
+        self.available_troops = territory_bonus + continent_bonus + card_bonus
         Logger.log(f'{self.name} receives {self.available_troops} troops ( '
                    f'{territory_bonus}/{continent_bonus}/{card_bonus})', state.verbose)
 
@@ -216,8 +199,7 @@ class Player:
         else:
             # decide attacker count
             attacker_count = self.agent.select_attack_count(state, source)
-            Logger.log(f'{self} attacks {target} from {source} with {attacker_count} troops',
-                       state.verbose)
+            Logger.log(f'{self} attacks {target} from {source} with {attacker_count} troops', state.verbose)
             self.attack_territory(state, source, target, attacker_count)
 
     # decide whether we want to attack this turn or not
@@ -229,10 +211,9 @@ class Player:
         return self.agent.wants_to_fortify(state)
 
     def take_turn(self, state):
-        self.agent.start_turn(state)
         self.receive_troops(state)
         self.place_new_troops(state)
-        state.board.plot(state.display_plot, "after placing troops")
+
         # check if player can attack
         source_territories = state.board.territories_to_attack_from(self)
         while source_territories and self.wants_to_attack(state):
@@ -248,3 +229,17 @@ class Player:
         target_territories = state.board.territories_to_fortify_to(self)
         if target_territories and self.wants_to_fortify(state):
             self.fortify(state)
+
+    def calculate_troops_addition(self,state):
+        # calculate occupied territory bonus
+        occupied_territories = state.board.occupied_territories(self)
+        territory_bonus = max(len(occupied_territories), 9)//3
+
+        # calculate occupied continent bonus
+        occupied_continents = state.board.occupied_continents(self)
+        continent_bonus = 0
+        for continent in occupied_continents:
+            continent_bonus += continent.army_bonus
+
+        return territory_bonus + continent_bonus
+
