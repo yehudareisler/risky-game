@@ -17,6 +17,7 @@ from reinforce_continent_agent import ReinforceContinentAttackAgent
 from committing_reinforce_continent_agent import CommittingReinforceContinentAgent
 from continent_by_ratio_agent import RatioAgent
 from planner_agent import PlannerAgent
+from plan_committer import PlanCommitter
 
 passive_bt = ("passive", PassiveAgent)
 random_bt = ("random", RandomAgent)
@@ -24,7 +25,7 @@ attack_above_three_bt = ("attck_above_three", AttackAboveThreeAgent)
 reinforce_continent_bt = ("continent_reinforcer", ReinforceContinentAttackAgent)
 committing_reinforce_continent_bt = ("committer", CommittingReinforceContinentAgent)
 ratio_bt = ("ratio", RatioAgent)
-planner_bt = ("planner", PlannerAgent)
+planner_bt = ("planner", PlannerAgent, (20, PlanCommitter))
 
 
 def main(bot_1, bot_2):
@@ -32,8 +33,8 @@ def main(bot_1, bot_2):
     pile = Pile.from_config_file('pile.cfg')
 
     players = [
-        Player(bot_1[0], bot_1[1]()),
-        Player(bot_2[0], bot_2[1]())
+        Player(bot_1[0], bot_1[1]() if len(bot_1) == 2 else bot_1[1](*bot_1[2])),
+        Player(bot_2[0], bot_2[1]() if len(bot_2) == 2 else bot_2[1](*bot_2[2]))
     ]
     state = State(board, players, pile, True, True)
     game = Game(state, with_neutrals=False)
@@ -74,8 +75,8 @@ def test2bots(bot_1, bot_2, iterations):
     board = Board.from_config_file('board.cfg')
     pile = Pile.from_config_file('pile.cfg')
     players = [
-        Player(bot_1[0], bot_1[1]()),
-        Player(bot_2[0], bot_2[1]())
+        Player(bot_1[0], bot_1[1]() if len(bot_1) == 2 else bot_1[1](*bot_1[2])),
+        Player(bot_2[0], bot_2[1]() if len(bot_2) == 2 else bot_2[1](*bot_2[2]))
     ]
     game_count = iterations
     player1_winner_count = 0
@@ -114,8 +115,8 @@ def testbots(bots, iterations):
     pile = Pile.from_config_file('pile.cfg')
     for bot_1, bot_2 in itertools.combinations(bots, 2):
         players = [
-            Player(bot_1[0], bot_1[1]()),
-            Player(bot_2[0], bot_2[1]())
+            Player(bot_1[0], bot_1[1]() if len(bot_1) == 2 else bot_1[1](*bot_1[2])),
+            Player(bot_2[0], bot_2[1]() if len(bot_2) == 2 else bot_2[1](*bot_2[2]))
         ]
         game_count = iterations
         bot1_win_count = 0
@@ -147,7 +148,7 @@ if __name__ == '__main__':
     if len(argv) != 2:
         print("ERR: wrong number of arguments. Enter exactly one argument - main or test")
     if argv[1] == "main":
-        main(planner_bt, random_bt)
+        main(planner_bt, committing_reinforce_continent_bt)
     elif argv[1] == "test":
         test()
     elif argv[1] == "test2bots":

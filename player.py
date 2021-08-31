@@ -229,6 +229,7 @@ class Player:
         return self.agent.wants_to_fortify(state)
 
     def take_turn(self, state):
+        self.agent.start_turn(state)
         self.receive_troops(state)
         self.place_new_troops(state)
         state.board.plot(state.display_plot, "after placing troops")

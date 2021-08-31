@@ -67,6 +67,7 @@ class Game:
                     self.state.player_to_wait, self.state.player_to_move
 
         self.plot('after_reinforcing at beginning of game')
+        self.state.initializing = False
 
     def execute_setup(self):
         Logger.log("Initializing setup phase...", self.state.verbose)
