@@ -25,7 +25,7 @@ attack_above_three_bt = ("attck_above_three", AttackAboveThreeAgent)
 reinforce_continent_bt = ("continent_reinforcer", ReinforceContinentAttackAgent)
 committing_reinforce_continent_bt = ("committer", CommittingReinforceContinentAgent)
 ratio_bt = ("ratio", RatioAgent)
-planner_bt = ("planner", PlannerAgent, (20, PlanCommitter))
+planner_bt = ("planner", PlannerAgent, (100, PlanCommitter))
 
 
 def main(bot_1, bot_2):
@@ -93,7 +93,7 @@ def test2bots(bot_1, bot_2, iterations):
         game.play_game()
         # if i % 5 == 0:
         #     print(f'At game #{i:04}')
-        print(f'At game #{i:04}')
+        # print(f'At game #{i:04}')
         total_move_count += game.move_count
         if player1 == game.winner:
             player1_winner_count += 1
@@ -152,10 +152,15 @@ if __name__ == '__main__':
     elif argv[1] == "test":
         test()
     elif argv[1] == "test2bots":
-        test2bots(committing_reinforce_continent_bt, planner_bt, iterations=200)
+        test2bots(committing_reinforce_continent_bt, planner_bt, iterations=50)
     elif argv[1] == "testbots":
         testbots([attack_above_three_bt, random_bt, reinforce_continent_bt,
                   committing_reinforce_continent_bt, ratio_bt, planner_bt], iterations=300)
+    elif argv[1] == "testplanner":
+        for i in range(10, 200, 5):
+            print(f"testing with {i} branches:")
+            new_planner_bt = ("planner", PlannerAgent, (i, PlanCommitter))
+            test2bots(committing_reinforce_continent_bt, planner_bt, iterations=50)
     else:
         print(
             "ERR: bad argument. Enter exactly one argument - 'main' or 'test' or 'test2bots' or "
