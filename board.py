@@ -16,6 +16,7 @@ class Board:
         # colors indicating occupation: player0, player1, neutrals (blue, red, gray)
         self.territory_colors = ['#283493', '#932834', '#616161']
         self.plotly_display = None
+        self.in_simulation = False
 
     def __str__(self):
         representation = ''
@@ -34,37 +35,38 @@ class Board:
 
         return representation
 
-    def plot(self, verbose, name):
-        if verbose:
-            if not self.plotly_display:
-                self.plotly_display = Display()
-            # init graph
-            g = nx.Graph()
+    def plot(self, display_plot, name):
+        if not display_plot or self.in_simulation:
+            return
+        if not self.plotly_display:
+            self.plotly_display = Display()
+        # init graph
+        g = nx.Graph()
 
-            # add nodes
-            for territory in self.territories.values():
-                label = f'{territory.name}\nt = {territory.troops}\n{territory.ruler}'
-                # label = f'{territory.name}\nt = {territory.troops}, ({territory.board_pos})'
-                g.add_node(territory, label=label, fontsize=30,
-                           pos=territory.board_pos, fixedsize=True,
-                           height=territory.size_on_board, width=territory.size_on_board,
-                           shape='oval', fontcolor='#FFFFFF', penwidth=35,
-                           fillcolor=territory.fill_color, color=territory.border_color,
-                           style='filled')
+        # add nodes
+        for territory in self.territories.values():
+            label = f'{territory.name}\nt = {territory.troops}\n{territory.ruler}'
+            # label = f'{territory.name}\nt = {territory.troops}, ({territory.board_pos})'
+            g.add_node(territory, label=label, fontsize=30,
+                       pos=territory.board_pos, fixedsize=True,
+                       height=territory.size_on_board, width=territory.size_on_board,
+                       shape='oval', fontcolor='#FFFFFF', penwidth=35,
+                       fillcolor=territory.fill_color, color=territory.border_color,
+                       style='filled')
 
-            # add edges
-            for path in self.paths:
-                g.add_edge(path.from_territory, path.to_territory, penwidth=5)
+        # add edges
+        for path in self.paths:
+            g.add_edge(path.from_territory, path.to_territory, penwidth=5)
 
-            self.plotly_display.add_graph(g,name)
-            # self.plotly_display.disp()
-            # convert to graphviz agraph
-            # a = to_agraph(g)
-            # a.graph_attr.update(splines='true', bgcolor='#BDBDBD')
-            # a.layout()
+        self.plotly_display.add_graph(g, name)
+        # self.plotly_display.disp()
+        # convert to graphviz agraph
+        # a = to_agraph(g)
+        # a.graph_attr.update(splines='true', bgcolor='#BDBDBD')
+        # a.layout()
 
-            # draw and export
-            # a.draw(plot_file_name)
+        # draw and export
+        # a.draw(plot_file_name)
 
     @staticmethod
     def from_config_file(path_to_file):
@@ -111,7 +113,11 @@ class Board:
     def border_territories(self, reinforcing_player):
         border_territories = []
         occupied_territories = self.occupied_territories(reinforcing_player)
+        i = 0
         for territory in occupied_territories:
+            i+=1
+            if i>100:
+                raise Exception("occupied")
             if territory.is_border_territory():
                 border_territories.append(territory)
 
@@ -162,3 +168,13 @@ class Board:
                 source_territories.add(territory)
 
         return source_territories
+
+    def start_simulation(self):
+        self.in_simulation = True
+        for territory in self.territories.values():
+            territory.start_simulation()
+
+    def end_simulation(self):
+        self.in_simulation = False
+        for territory in self.territories.values():
+            territory.end_simulation()

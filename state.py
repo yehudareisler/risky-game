@@ -10,6 +10,7 @@ class State:
         self.player_to_wait = None
         self.pile = pile
         self.attack_successful = False
+        self.initializing = True
 
     def get_card_bonus(self):
         if self.card_set_count < 6:

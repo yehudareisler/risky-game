@@ -9,6 +9,11 @@ class Territory:
         self.ruler = None
         self.troops = 0
         self.fill_color = ''
+        self.saved_ruler = None
+        self.saved_troops = 0
+        self.saved_fill_color = ''
+        self.is_simulated = False
+
 
     def __str__(self):
         return self.name
@@ -20,10 +25,14 @@ class Territory:
         return not self.ruler
 
     def is_border_territory(self):
+        i = 0
         for neighbor in self.neighbors:
+            i+=1
+            if i>1000:
+                print("help!")
+                raise Exception(f"neighbors:{self.neighbors}")
             if neighbor.ruler != self.ruler:
                 return True
-
         return False
 
     def enemy_neighbors(self):
@@ -52,3 +61,18 @@ class Territory:
     def can_be_fortify_target(self):
         return self.friendly_fortifiers() and self.enemy_neighbors()
 
+    def start_simulation(self):
+        if self.is_simulated:
+            raise Exception("cannot simulate over a simulation")
+        self.saved_ruler = self.ruler
+        self.saved_troops = self.troops
+        self.saved_fill_color = self.fill_color
+        self.is_simulated = True
+
+    def end_simulation(self):
+        if not self.is_simulated:
+            raise Exception("cannot end a simulation that didn't start")
+        self.ruler = self.saved_ruler
+        self.troops = self.saved_troops
+        self.fill_color = self.saved_fill_color
+        self.is_simulated = False

@@ -6,9 +6,12 @@ class Agent(ABC):
     An abstract class for an agent, to be instantiated into several specific agents.
     """
 
+    def start_turn(self,state):
+        pass
+
     # return: name of the territory to be reinforced
     # abstract method
-    def reinforce_territory(self, state):
+    def reinforce_owned_territory(self, state):
         pass
 
     # return: <to>, <from>, <troop_count>

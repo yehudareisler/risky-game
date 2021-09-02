@@ -230,4 +230,16 @@ class Player:
         if target_territories and self.wants_to_fortify(state):
             self.fortify(state)
 
+    def calculate_troops_addition(self,state):
+        # calculate occupied territory bonus
+        occupied_territories = state.board.occupied_territories(self)
+        territory_bonus = max(len(occupied_territories), 9)//3
+
+        # calculate occupied continent bonus
+        occupied_continents = state.board.occupied_continents(self)
+        continent_bonus = 0
+        for continent in occupied_continents:
+            continent_bonus += continent.army_bonus
+
+        return territory_bonus + continent_bonus
 
