@@ -18,14 +18,19 @@ from committing_reinforce_continent_agent import CommittingReinforceContinentAge
 from continent_by_ratio_agent import RatioAgent
 from planner_agent import PlannerAgent
 from plan_committer import PlanCommitter
+from greedy_agent import GreedyAgent
 
 passive_bt = ("passive", PassiveAgent)
 random_bt = ("random", RandomAgent)
-attack_above_three_bt = ("attck_above_three", AttackAboveThreeAgent)
+attack_above_three_bt = ("attack_above_three", AttackAboveThreeAgent)
 reinforce_continent_bt = ("continent_reinforcer", ReinforceContinentAttackAgent)
 committing_reinforce_continent_bt = ("committer", CommittingReinforceContinentAgent)
 ratio_bt = ("ratio", RatioAgent)
 planner_bt = ("planner", PlannerAgent, (100, PlanCommitter))
+greedy_bt = ("greedy", GreedyAgent)
+
+players = [passive_bt, random_bt, attack_above_three_bt, reinforce_continent_bt,
+           committing_reinforce_continent_bt, ratio_bt, planner_bt]
 
 
 def main(bot_1, bot_2):
@@ -131,8 +136,8 @@ def testbots(bots, iterations):
             game = Game(state, with_neutrals=False)
             game.execute_setup()
             game.play_game()
-            if i % 100 == 0:
-                print(f'At game #{i:04}')
+            # if i % 100 == 0:
+            print(f'At game #{i:04}')
             total_move_count += game.move_count
             if player_1 == game.winner:
                 bot1_win_count += 1
@@ -144,18 +149,102 @@ def testbots(bots, iterations):
         print(f'Average number of total moves in a game: {round(total_move_count / game_count, 2)}')
 
 
-if __name__ == '__main__':
+def get_int(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
+
+def get_valid_input(prompt, possibilities, is_int=False):
+    res = input(prompt)
+    res = int(res) if (is_int and get_int(res)) else res
+    while res not in possibilities:
+        if res == "exit":
+            exit()
+        res = input("That was not a valid possibility. Please enter a valid possibility, "
+                    "according to the following instructions or 'exit' to exit.\n" + prompt)
+        res = int(res) if (is_int and get_int(res)) else res
+    return res
+
+
+def print_players():
+    print("The possible players are numbered as follows:")
+    for n, player in enumerate(players):
+        print(n, player[0])
+
+
+def decide_action():
+    choice = get_valid_input(
+        "Would you like to run a single game with an interface, or measure the results "
+        "of many games?\nWrite 'interface' for the former possibility, and 'measure' "
+        "for the latter.\n", possibilities=['interface', 'measure'])
+    if choice == 'interface':
+        print("We will run a game with an interface.")
+        print_players()
+        first = get_valid_input("enter the number of the first bot.\n", range(len(players)),
+                                is_int=True)
+        second = get_valid_input("enter the number of the second bot.\n", range(len(players)),
+                                 is_int=True)
+        first_player = players[first]
+        second_player = players[second]
+        main(first_player, second_player)
+    elif choice == 'measure':
+        repetitions = get_valid_input("We will run a set of games and measure the performance of "
+                                      "each bot.\nHow many games should be played?\n",
+                                      range(10 ** 6), is_int=True)
+        print_players()
+        first = get_valid_input("enter the number of the first bot.\n", range(len(players)),
+                                is_int=True)
+        second = get_valid_input("enter the number of the second bot.\n", range(len(players)),
+                                 is_int=True)
+        first_player = players[first]
+        second_player = players[second]
+        test2bots(first_player, second_player, repetitions)
+
+
+"""
+Would you like to run a single game with an interface, or measure the results of many 
+games?
+Write 'interface' for the former possibility, and 'measure' for the latter.
+
+We will run a game with an interface.
+The possible players are numbered as follows:
+...
+enter the number of the first bot.
+
+enter the number of the second bot.
+<RUN>
+
+We will run a set of games and measure the performance of each bot.
+How many games should be played?
+
+The possible players are numbered as follows:
+...
+enter the number of the first bot.
+
+enter the number of the second bot.
+<RUN>
+
+That was not a valid possibility. Please enter a valid possibility, according to the 
+following 
+instructions or 'exit' to exit.
+"""
+
+
+def old_client_interface():
     if len(argv) != 2:
         print("ERR: wrong number of arguments. Enter exactly one argument - main or test")
     if argv[1] == "main":
-        main(planner_bt, committing_reinforce_continent_bt)
+        main(greedy_bt, committing_reinforce_continent_bt)
     elif argv[1] == "test":
         test()
     elif argv[1] == "test2bots":
         test2bots(committing_reinforce_continent_bt, planner_bt, iterations=50)
     elif argv[1] == "testbots":
-        testbots([attack_above_three_bt, random_bt, reinforce_continent_bt,
-                  committing_reinforce_continent_bt, ratio_bt, planner_bt], iterations=300)
+        testbots([greedy_bt, attack_above_three_bt, random_bt, reinforce_continent_bt,
+                  committing_reinforce_continent_bt, ratio_bt], iterations=30)
     elif argv[1] == "testplanner":
         for i in range(10, 200, 5):
             print(f"testing with {i} branches:")
@@ -165,3 +254,7 @@ if __name__ == '__main__':
         print(
             "ERR: bad argument. Enter exactly one argument - 'main' or 'test' or 'test2bots' or "
             "'testbots'")
+
+
+if __name__ == '__main__':
+    decide_action()

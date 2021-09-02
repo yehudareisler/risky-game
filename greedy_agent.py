@@ -5,7 +5,7 @@ from agent import Agent
 from heuristcs import get_continent_ratio, choose_best_path, calculate_path_value, find_territory_ratio
 
 ratio = 1.4
-log_base = 1.8
+log_base = 3.5
 
 def find_attack_path(state, troops_addition = 0):
     cur_player = state.player_to_move
